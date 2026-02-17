@@ -12,8 +12,23 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS Configuration
+// CORS Configuration
+const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'];
 const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        const isAllowed = allowedOrigins.includes(origin) || !process.env.CLIENT_URL;
+        
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            console.error('CORS blocked origin:', origin);
+            console.log('Allowed origins:', allowedOrigins);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']

@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const generateQuizQuestions = async (topic, difficulty, count) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `Generate ${count} multiple choice questions about "${topic}" at "${difficulty}" difficulty level.
         Return the response strictly in JSON format array. 
