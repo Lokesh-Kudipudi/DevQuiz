@@ -22,6 +22,7 @@ router.get('/google/callback',
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Essential for cross-site cookies
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -32,7 +33,11 @@ router.get('/google/callback',
 // @desc    Logout user
 // @route   GET /auth/logout
 router.get('/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
     res.json({ message: 'Logged out successfully' });
 });
 
