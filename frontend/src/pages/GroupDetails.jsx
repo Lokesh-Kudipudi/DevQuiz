@@ -67,12 +67,20 @@ const GroupDetails = () => {
                                             <h3 className="font-bold text-lg">{quiz.title}</h3>
                                             <p className="text-gray-400 text-sm">Topic: {quiz.topic} • Difficulty: {quiz.difficulty}</p>
                                         </div>
-                                        <Link 
-                                            to={`/quiz/${quiz._id}`}
-                                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm"
-                                        >
-                                            Start
-                                        </Link>
+                                        <div className="flex space-x-2">
+                                            <Link 
+                                                to={`/quiz/${quiz._id}`}
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm"
+                                            >
+                                                Start
+                                            </Link>
+                                            <Link 
+                                                to={`/quiz/${quiz._id}/results`}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm"
+                                            >
+                                                Results
+                                            </Link>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

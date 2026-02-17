@@ -59,7 +59,15 @@ const getQuiz = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to view this quiz' });
         }
 
-        res.json(quiz);
+        // Check for existing attempt
+        const attempt = await Attempt.findOne({ quiz: quiz._id, user: req.user._id });
+
+        const quizData = quiz.toObject();
+        if (attempt) {
+            quizData.attempt = attempt;
+        }
+
+        res.json(quizData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });
@@ -118,8 +126,36 @@ const attemptQuiz = async (req, res) => {
     }
 };
 
+// @desc    Get quiz results (participants and scores)
+// @route   GET /api/quizzes/:id/results
+const getQuizResults = async (req, res) => {
+    try {
+        const quiz = await Quiz.findById(req.params.id)
+            .populate('group', 'members')
+            .populate('participants.user', 'name email');
+
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+
+        // Check if user is member of the group
+        if (!quiz.group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'Not authorized to view these results' });
+        }
+
+        // Return participants sorted by score (descending)
+        const results = quiz.participants.sort((a, b) => b.score - a.score);
+
+        res.json(results);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     createQuiz,
     getQuiz,
-    attemptQuiz
+    attemptQuiz,
+    getQuizResults
 };

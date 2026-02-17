@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import GroupDetails from './pages/GroupDetails';
 import CreateQuiz from './pages/CreateQuiz';
 import TakeQuiz from './pages/TakeQuiz';
+import QuizResults from './pages/QuizResults';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             <Route path="/groups/:id" element={<GroupDetails />} />
             <Route path="/groups/:groupId/create-quiz" element={<CreateQuiz />} />
             <Route path="/quiz/:id" element={<TakeQuiz />} />
+            <Route path="/quiz/:id/results" element={<QuizResults />} />
           </Route>
         </Routes>
       </AuthProvider>
