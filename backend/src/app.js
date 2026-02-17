@@ -2,13 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
+const morgan = require('morgan');
 require('./config/passport'); // Passport config
 
 const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
@@ -19,6 +19,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
+app.use(morgan('dev'));
 
 // Passport Middleware (will be configured later)
 app.use(passport.initialize());
