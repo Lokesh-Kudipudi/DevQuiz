@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from '../api/axios';
+import { baseURL } from '../api/axios';
 
 const AuthContext = createContext();
 
@@ -20,9 +21,9 @@ export const AuthProvider = ({ children }) => {
         };
         checkUser();
     }, []);
-
+ß
     const login = () => {
-        window.location.href = 'http://localhost:5174/auth/google';
+        window.location.href = `${baseURL}/auth/google`;
     };
 
     const logout = async () => {
