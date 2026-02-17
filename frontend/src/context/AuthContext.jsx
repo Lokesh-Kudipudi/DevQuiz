@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         };
         checkUser();
     }, []);
-ß
+    
     const login = () => {
         window.location.href = `${baseURL}/auth/google`;
     };
