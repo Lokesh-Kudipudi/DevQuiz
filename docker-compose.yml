@@ -1,0 +1,15 @@
+
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    container_name: piston
+    restart: always
+    ports:
+      - "2000:2000"
+    volumes:
+      - /tmp/piston:/piston/packages
+    tmpfs:
+      - /tmp
+    privileged: true
+    environment:
+      - PISTON_DISABLE_NETWORKING=true

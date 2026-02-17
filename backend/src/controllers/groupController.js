@@ -1,4 +1,5 @@
 const Group = require('../models/Group');
+const CodingRound = require('../models/CodingRound');
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 
@@ -93,7 +94,12 @@ const getGroupDetails = async (req, res) => {
              return res.status(403).json({ message: 'Not authorized to view this group' });
         }
 
-        res.json(group);
+        const codingRounds = await CodingRound.find({ group: req.params.id }).populate('creator', 'name');
+
+        const groupData = group.toObject();
+        groupData.codingRounds = codingRounds;
+
+        res.json(groupData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });

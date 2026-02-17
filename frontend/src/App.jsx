@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import GroupDetails from './pages/GroupDetails';
 import CreateQuiz from './pages/CreateQuiz';
+import CreateCodingRound from './pages/CreateCodingRound';
+import TakeCodingRound from './pages/TakeCodingRound';
 import TakeQuiz from './pages/TakeQuiz';
 import QuizResults from './pages/QuizResults';
 import PrivateRoute from './components/PrivateRoute';
@@ -18,6 +20,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/groups/:id" element={<GroupDetails />} />
             <Route path="/groups/:groupId/create-quiz" element={<CreateQuiz />} />
+            <Route path="/groups/:groupId/create-coding-round" element={<CreateCodingRound />} />
+            <Route path="/coding-round/:id" element={<TakeCodingRound />} />
             <Route path="/quiz/:id" element={<TakeQuiz />} />
             <Route path="/quiz/:id/results" element={<QuizResults />} />
           </Route>
