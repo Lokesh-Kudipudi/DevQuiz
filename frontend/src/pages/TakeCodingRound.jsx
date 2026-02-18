@@ -30,6 +30,20 @@ const TakeCodingRound = () => {
                 
                 // Then get details
                 const { data } = await axios.get(`/api/coding-rounds/${id}`);
+                
+                if (data.type === 'External') {
+                    if (data.status === 'Pending') {
+                        navigate(`/coding-round/${id}/lobby`);
+                        return;
+                    } else if (data.status === 'Live') {
+                        navigate(`/coding-round/${id}/live`);
+                        return;
+                    } else if (data.status === 'Completed') {
+                        navigate(`/coding-round/${id}/results`);
+                        return;
+                    }
+                }
+
                 setRound(data);
                 
                 // Initialize code refs with starter code or previously submitted code

@@ -1,9 +1,28 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
-const LiveLeaderboard = ({ roundId, currentUserId }) => {
-    const [leaderboard, setLeaderboard] = useState([]);
+const LiveLeaderboard = ({ roundId, currentUserId, questions = [], initialParticipants = [] }) => {
+    const [leaderboard, setLeaderboard] = useState(initialParticipants);
     const [socket, setSocket] = useState(null);
+
+    const getUniqueParticipants = (participants) => {
+        if (!participants) return [];
+        const seen = new Set();
+        return participants.filter(p => {
+            const id = p.user._id || p.user;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+        });
+    };
+
+    // Initial load
+    useEffect(() => {
+        if (initialParticipants && initialParticipants.length > 0) {
+            const unique = getUniqueParticipants(initialParticipants);
+            setLeaderboard(unique.sort((a, b) => b.score - a.score));
+        }
+    }, [initialParticipants]);
 
     useEffect(() => {
         // Connect to Socket.io server
@@ -17,7 +36,13 @@ const LiveLeaderboard = ({ roundId, currentUserId }) => {
 
         newSocket.on('leaderboard_update', (data) => {
             console.log('Leaderboard update:', data);
-            setLeaderboard(data.leaderboard);
+            const unique = getUniqueParticipants(data.leaderboard);
+            setLeaderboard(unique);
+        });
+
+        newSocket.on('round_ended', () => {
+             alert('The round has been ended by the host.');
+             window.location.href = `/coding-round/${roundId}/results`;
         });
 
         return () => {
@@ -46,6 +71,11 @@ const LiveLeaderboard = ({ roundId, currentUserId }) => {
                             <tr>
                                 <th className="px-4 py-2 font-medium">Rank</th>
                                 <th className="px-4 py-2 font-medium">User</th>
+                                {questions.map((q, idx) => (
+                                    <th key={q._id} className="px-4 py-2 font-medium text-center">
+                                        Q{idx + 1}
+                                    </th>
+                                ))}
                                 <th className="px-4 py-2 font-medium text-right">Score</th>
                             </tr>
                         </thead>
@@ -53,7 +83,7 @@ const LiveLeaderboard = ({ roundId, currentUserId }) => {
                             {leaderboard.map((participant, index) => {
                                 const isCurrentUser = participant.user._id === currentUserId || participant.user === currentUserId;
                                 return (
-                                    <tr key={participant.user._id || index} className={isCurrentUser ? 'bg-primary-900/20' : ''}>
+                                    <tr key={`${participant.user._id || participant.user}-${index}`} className={isCurrentUser ? 'bg-primary-900/20' : ''}>
                                         <td className="px-4 py-2 whitespace-nowrap text-gray-300 w-12">
                                             {index + 1}
                                             {index === 0 && <span className="ml-1 text-yellow-400">👑</span>}
@@ -62,6 +92,26 @@ const LiveLeaderboard = ({ roundId, currentUserId }) => {
                                             {participant.user.name || 'Unknown'}
                                             {isCurrentUser && <span className="ml-2 text-xs text-primary-400">(You)</span>}
                                         </td>
+                                        {questions.map(q => {
+                                            const statusList = participant.status || participant.questionStatus || [];
+                                            const status = statusList.find(s => s.questionId === q._id);
+                                            return (
+                                                <td key={q._id} className="px-4 py-2 text-center border-l border-gray-700">
+                                                     {status && status.status === 'Passed' ? (
+                                                         <div className="flex flex-col">
+                                                             <span className="text-green-400 font-bold">✓</span>
+                                                             {status.timeTaken && (
+                                                                 <span className="text-[10px] text-gray-500">
+                                                                     {Math.floor(status.timeTaken)}s
+                                                                 </span>
+                                                             )}
+                                                         </div>
+                                                     ) : (
+                                                         <span className="text-gray-600">-</span>
+                                                     )}
+                                                </td>
+                                            );
+                                        })}
                                         <td className="px-4 py-2 whitespace-nowrap text-right text-primary-300 font-bold">
                                             {participant.score}
                                         </td>

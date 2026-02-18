@@ -7,7 +7,7 @@ const { generateCodingQuestions } = require('../services/geminiService');
 // @route   POST /api/coding-rounds
 const createCodingRound = async (req, res) => {
     try {
-        const { title, groupId, timeLimit, questions } = req.body;
+        const { title, groupId, timeLimit, questions, type, allowSelfAttempt } = req.body;
 
         // Verify group membership
         const group = await Group.findById(groupId);
@@ -23,13 +23,10 @@ const createCodingRound = async (req, res) => {
             group: groupId,
             creator: req.user._id,
             timeLimit,
-            questions
+            questions: questions || [], // Can be empty for External rounds initially
+            type: type || 'Piston',
+            allowSelfAttempt: allowSelfAttempt || false
         });
-
-        // Add to group's quizzes (or separate field if we modify Group model, for now let's just create it)
-        // Note: The Group model might expect 'quizzes' to be ObjectIds of 'Quiz' model. 
-        // If 'quizzes' field in Group is strict ref to 'Quiz', this might fail or be inconsistent.
-        // For now, we'll assume we can just query CodingRounds by groupId.
 
         res.status(201).json(codingRound);
     } catch (err) {
@@ -43,7 +40,10 @@ const createCodingRound = async (req, res) => {
 const getCodingRound = async (req, res) => {
     try {
         const round = await CodingRound.findById(req.params.id)
-            .populate('group', 'members');
+            .populate('group', 'members')
+            .populate('questions.addedBy', 'name')
+            .populate('creator', 'name')
+            .populate('participants.user', 'name');
 
         if (!round) {
             return res.status(404).json({ message: 'Coding round not found' });
@@ -54,13 +54,43 @@ const getCodingRound = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to access this round' });
         }
 
-        const participant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+        const participant = round.participants.find(p => 
+            (p.user._id || p.user).toString() === req.user._id.toString()
+        );
         
-        // Hide hidden test cases from client
         const roundData = round.toObject();
-        roundData.questions.forEach(q => {
-            q.testCases = q.testCases.filter(tc => !tc.isHidden);
-        });
+
+        if (round.type === 'Piston') {
+            // Hide hidden test cases from client for Piston rounds
+            roundData.questions.forEach(q => {
+                if (q.testCases) {
+                    q.testCases = q.testCases.filter(tc => !tc.isHidden);
+                }
+            });
+        } else if (round.type === 'External') {
+            // For External rounds, visibility depends on status
+            if (round.status === 'Pending') {
+                // Show skeleton unless the user added the question
+                roundData.questions = roundData.questions.map(q => {
+                    const isAddedByMe = q.addedBy && q.addedBy._id.toString() === req.user._id.toString();
+
+                    if (isAddedByMe) {
+                        return q;
+                    }
+
+                    return {
+                        _id: q._id,
+                        addedBy: q.addedBy,
+                        title: 'Hidden Question',
+                        difficulty: q.difficulty,
+                        points: q.points,
+                        platform: q.platform,
+                        isSkeleton: true
+                    };
+                });
+            }
+            // If Live or Completed, show all details
+        }
 
         if (participant) {
             roundData.participant = participant;
@@ -73,17 +103,99 @@ const getCodingRound = async (req, res) => {
     }
 };
 
-// @desc    Join coding round (start timer)
+// @desc    Add question to round (External only)
+// @route   POST /api/coding-rounds/:id/questions
+const addQuestionToRound = async (req, res) => {
+    try {
+        const { title, url, platform, difficulty, points } = req.body;
+        const round = await CodingRound.findById(req.params.id);
+        
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+        
+        // Check if round is pending
+        if (round.status !== 'Pending') {
+            return res.status(400).json({ message: 'Cannot add questions to a live or completed round' });
+        }
+
+        // Add question
+        round.questions.push({
+            title,
+            url,
+            platform,
+            difficulty,
+            points,
+            addedBy: req.user._id
+        });
+
+        await round.save();
+        
+        // Emit socket event to update lobby
+        const io = req.app.get('socketio');
+        if (io) {
+            await round.populate('questions.addedBy', 'name');
+            io.to(`round_${round._id}`).emit('question_added', { 
+                questions: round.questions 
+            });
+        }
+
+        res.json(round.questions);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Start the round (Creator only)
+// @route   POST /api/coding-rounds/:id/start
+const startRound = async (req, res) => {
+    try {
+        const round = await CodingRound.findById(req.params.id);
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+
+        if (round.creator.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only creator can start the round' });
+        }
+
+        if (round.status !== 'Pending') {
+            return res.status(400).json({ message: 'Round already started or completed' });
+        }
+
+        round.status = 'Live';
+        round.startTime = new Date();
+        // Calculate endTime
+        round.endTime = new Date(round.startTime.getTime() + round.timeLimit * 60000);
+
+        await round.save();
+
+        // Emit socket event
+        const io = req.app.get('socketio');
+        if (io) {
+            io.to(`round_${round._id}`).emit('round_started', { 
+                startTime: round.startTime,
+                endTime: round.endTime
+            });
+        }
+
+        res.json({ message: 'Round started', startTime: round.startTime });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Join coding round
 // @route   POST /api/coding-rounds/:id/join
 const joinCodingRound = async (req, res) => {
     try {
         const round = await CodingRound.findById(req.params.id);
         if (!round) return res.status(404).json({ message: 'Round not found' });
 
-        const existingParticipant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+        const existingParticipant = round.participants.find(p => 
+            (p.user._id || p.user).toString() === req.user._id.toString()
+        );
         
         if (existingParticipant) {
-            return res.json({ message: 'Already joined', startTime: existingParticipant.startTime });
+            return res.json({ message: 'Already joined', participant: existingParticipant });
         }
 
         const newParticipant = {
@@ -102,25 +214,168 @@ const joinCodingRound = async (req, res) => {
         // Emit socket event for leaderboard update
         const io = req.app.get('socketio');
         if (io) {
-            io.to(`round_${round._id}`).emit('leaderboard_update', {
-                leaderboard: round.participants.sort((a, b) => b.score - a.score)
+            await round.populate('participants.user', 'name');
+             io.to(`round_${round._id}`).emit('leaderboard_update', {
+                leaderboard: round.participants.map(p => ({
+                    user: p.user,
+                    score: p.score,
+                    status: p.questionStatus
+                })).sort((a, b) => b.score - a.score)
             });
         }
 
-        res.json({ message: 'Joined successfully', startTime: newParticipant.startTime });
+        res.json({ message: 'Joined successfully', participant: newParticipant });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
-// @desc    Submit solution for a question
+// @desc    Start timer for a specific question (External)
+// @route   PUT /api/coding-rounds/:id/questions/:questionId/start
+const startQuestionTimer = async (req, res) => {
+    try {
+        const round = await CodingRound.findById(req.params.id);
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+        
+        const participant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+        if (!participant) return res.status(403).json({ message: 'Not a participant' });
+
+        if (!participant.questionStatus) participant.questionStatus = [];
+
+        // Check if self attempt allowed
+        const question = round.questions.id(req.params.questionId);
+        if (question.addedBy && question.addedBy.toString() === req.user._id.toString() && !round.allowSelfAttempt) {
+             return res.status(403).json({ message: 'Self attempt not allowed for this round' });
+        }
+
+        const questionStatus = participant.questionStatus.find(qs => qs.questionId.toString() === req.params.questionId);
+        
+        if (questionStatus) {
+            if (questionStatus.status === 'Pending') {
+                questionStatus.status = 'Solving';
+                questionStatus.startTime = new Date();
+                questionStatus.lastStartTime = new Date();
+                await round.save();
+            } else if (questionStatus.status === 'Solving' && !questionStatus.lastStartTime) {
+                // Resume logic
+                questionStatus.lastStartTime = new Date();
+                await round.save();
+            }
+            res.json(questionStatus);
+        } else {
+             // Should not happen if joined correctly, but can maintain robustness
+             participant.questionStatus.push({
+                 questionId: req.params.questionId,
+                 status: 'Solving',
+                 startTime: new Date(),
+                 lastStartTime: new Date()
+             });
+             await round.save();
+             res.json(participant.questionStatus[participant.questionStatus.length-1]);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Pause timer for a specific question (External)
+// @route   PUT /api/coding-rounds/:id/questions/:questionId/pause
+const pauseQuestionTimer = async (req, res) => {
+    try {
+        const round = await CodingRound.findById(req.params.id);
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+        
+        const participant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+        if (!participant) return res.status(403).json({ message: 'Not a participant' });
+
+        if (!participant.questionStatus) participant.questionStatus = [];
+
+        const questionStatus = participant.questionStatus.find(qs => qs.questionId.toString() === req.params.questionId);
+        
+        if (questionStatus && questionStatus.status === 'Solving' && questionStatus.lastStartTime) {
+            const now = new Date();
+            const sessionDuration = (now - questionStatus.lastStartTime) / 1000;
+            questionStatus.accumulatedTime = (questionStatus.accumulatedTime || 0) + sessionDuration;
+            questionStatus.lastStartTime = null; // Paused
+            
+            await round.save();
+            res.json(questionStatus);
+        } else {
+            res.status(400).json({ message: 'Question not running or not in solving state' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Submit solution (External) - Stop Timer
+// @route   POST /api/coding-rounds/:id/submit-external
+const submitExternalQuestion = async (req, res) => {
+     try {
+        const { questionId } = req.body;
+        const round = await CodingRound.findById(req.params.id);
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+
+        const participant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+        if (!participant) return res.status(403).json({ message: 'Not a participant' });
+
+        if (!participant.questionStatus) participant.questionStatus = [];
+
+        const questionStatus = participant.questionStatus.find(qs => qs.questionId.toString() === questionId);
+        const question = round.questions.id(questionId);
+
+        if (questionStatus && questionStatus.status === 'Solving') {
+            questionStatus.status = 'Passed'; // Assumed passed for external
+            questionStatus.endTime = new Date();
+            
+            // Calculate total time
+            let currentSessionTime = 0;
+            if (questionStatus.lastStartTime) {
+                 currentSessionTime = (questionStatus.endTime - questionStatus.lastStartTime) / 1000;
+            }
+            const totalDuration = (questionStatus.accumulatedTime || 0) + currentSessionTime;
+            
+            questionStatus.timeTaken = totalDuration;
+            questionStatus.lastStartTime = null; // Clear active session
+
+            // Update score
+            participant.score += question.points || 0;
+
+            await round.save();
+
+            // Emit socket event
+            const io = req.app.get('socketio');
+            if (io) {
+                await round.populate('participants.user', 'name');
+                io.to(`round_${round._id}`).emit('leaderboard_update', {
+                    leaderboard: round.participants.map(p => ({
+                        user: p.user,
+                        score: p.score,
+                        status: p.questionStatus
+                    })).sort((a, b) => b.score - a.score)
+                });
+            }
+
+            res.json({ message: 'Submitted', score: participant.score, timeTaken: totalDuration });
+        } else {
+            res.status(400).json({ message: 'Question not in solving state or already submitted' });
+        }
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+
+// @desc    Submit solution for a question (Piston)
 // @route   POST /api/coding-rounds/:id/submit
 const submitSolution = async (req, res) => {
     try {
         const { questionId, code, passed } = req.body; 
-        // Note: 'passed' boolean comes from frontend after running against hidden test cases? 
-        // ideally backend runs it, but for now we trust frontend result mixed with Piston
         
         const round = await CodingRound.findById(req.params.id);
         if (!round) return res.status(404).json({ message: 'Round not found' });
@@ -134,7 +389,7 @@ const submitSolution = async (req, res) => {
             questionStatus.code = code;
             if (passed && questionStatus.status !== 'Passed') {
                 questionStatus.status = 'Passed';
-                participant.score += 10; // +10 points for solving
+                participant.score += 10; // +10 points for solving Piston
             } else if (!passed) {
                  questionStatus.status = 'Failed';
             }
@@ -145,7 +400,6 @@ const submitSolution = async (req, res) => {
         // Emit socket event
         const io = req.app.get('socketio');
         if (io) {
-            // Populate user details for leaderboard
             await round.populate('participants.user', 'name');
             io.to(`round_${round._id}`).emit('leaderboard_update', {
                 leaderboard: round.participants
@@ -174,8 +428,6 @@ const deleteCodingRound = async (req, res) => {
             return res.status(404).json({ message: 'Coding round not found' });
         }
 
-        // Check if user is creator or group admin
-        // We need to fetch the group to check admin status if needed
         const group = await Group.findById(round.group);
         
         // Authorization: Creator of round OR Creator of group
@@ -210,11 +462,44 @@ const generateQuestions = async (req, res) => {
     }
 };
 
+// @desc    End coding round (Creator only)
+// @route   PUT /api/coding-rounds/:id/end
+const endCodingRound = async (req, res) => {
+    try {
+        const round = await CodingRound.findById(req.params.id);
+        if (!round) return res.status(404).json({ message: 'Round not found' });
+
+        if (round.creator.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only creator can end the round' });
+        }
+
+        round.status = 'Completed';
+        round.endTime = new Date();
+        await round.save();
+
+        const io = req.app.get('socketio');
+        if (io) {
+            io.to(`round_${round._id}`).emit('round_ended');
+        }
+
+        res.json({ message: 'Round ended successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     createCodingRound,
     getCodingRound,
     joinCodingRound,
     submitSolution,
     generateQuestions,
-    deleteCodingRound
+    deleteCodingRound,
+    addQuestionToRound,
+    startRound,
+    startQuestionTimer,
+    pauseQuestionTimer,
+    submitExternalQuestion,
+    endCodingRound
 };

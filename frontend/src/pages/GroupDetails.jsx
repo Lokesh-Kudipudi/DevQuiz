@@ -108,37 +108,25 @@ const GroupDetails = () => {
                             </svg>
                             Coding Rounds
                         </h2>
+                        <div className="flex gap-4">
+                            <Link to={`/groups/${id}/create-coding-round`}>
+                                <Button size="sm" variant="secondary" className="flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    Create Coding Round
+                                </Button>
+                            </Link>
+                            <Link to={`/groups/${id}/create-quiz`}>
+                                <Button size="sm">+ Create Quiz</Button>
+                            </Link>
+                        </div>
                     </div>
 
                     {group.codingRounds && group.codingRounds.length > 0 ? (
                         <div className="space-y-4 mb-8">
                             {group.codingRounds.map(round => (
                                 <Card key={round._id} className="group hover:border-primary-500/30 transition-all duration-300 relative">
-                                    {/* Delete Button (Only visible if creator/admin, assuming frontend checks or just show for all members and let backend block) */}
-                                    {/* Ideally check if user is creator of round or group */}
-                                    <button 
-                                        onClick={async (e) => {
-                                            e.preventDefault();
-                                            if(!window.confirm('Are you sure you want to delete this coding round?')) return;
-                                            try {
-                                                await axios.delete(`/api/coding-rounds/${round._id}`);
-                                                // Optimistic update or refetch
-                                                setGroup(prev => ({
-                                                    ...prev,
-                                                    codingRounds: prev.codingRounds.filter(r => r._id !== round._id)
-                                                }));
-                                            } catch (err) {
-                                                alert('Failed to delete round');
-                                            }
-                                        }}
-                                        className="absolute top-4 right-4 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10 p-1"
-                                        title="Delete Round"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
                                             <h3 className="font-bold text-xl text-white group-hover:text-primary-400 transition-colors mb-1 pr-8">{round.title}</h3>
@@ -159,37 +147,55 @@ const GroupDetails = () => {
                                         </div>
                                         <div className="flex space-x-3 w-full sm:w-auto">
                                             <Link to={`/coding-round/${round._id}`} className="flex-1 sm:flex-none">
-                                                <Button size="sm" className="w-full">Enter Round</Button>
+                                                <Button size="sm" className="w-full">
+                                                    {round.status === 'Pending' ? 'Enter Lobby' : 
+                                                     round.status === 'Live' ? 'Join Live' : 
+                                                     round.status === 'Completed' ? 'Results' : 'Enter Round'}
+                                                </Button>
                                             </Link>
+
+                                            <button 
+                                                onClick={async (e) => {
+                                                    e.preventDefault();
+                                                    if(!window.confirm('Are you sure you want to delete this coding round?')) return;
+                                                    try {
+                                                        await axios.delete(`/api/coding-rounds/${round._id}`);
+                                                        setGroup(prev => ({
+                                                            ...prev,
+                                                            codingRounds: prev.codingRounds.filter(r => r._id !== round._id)
+                                                        }));
+                                                    } catch (err) {
+                                                        alert('Failed to delete round');
+                                                    }
+                                                }}
+                                                className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
+                                                title="Delete Round"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 </Card>
                             ))}
                         </div>
                     ) : (
-                         <div className="mb-8"></div>
+                         <Card className="text-center py-12 border-dashed border-gray-800 mb-8">
+                            <p className="text-gray-400 mb-4">No coding rounds created yet.</p>
+                            <Link to={`/groups/${id}/create-coding-round`}>
+                                <Button variant="outline" size="sm">Create First Round</Button>
+                            </Link>
+                        </Card>
                     )}
 
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-white flex items-center">
                             <svg className="w-6 h-6 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             Quizzes
                         </h2>
-                        <div className="flex gap-4">
-                            <Link to={`/groups/${id}/create-coding-round`}>
-                                <Button disabled={true} size="sm" variant="secondary" className="flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                    </svg>
-                                    Create Coding Round
-                                </Button>
-                            </Link>
-                            <Link to={`/groups/${id}/create-quiz`}>
-                                <Button size="sm">+ Create Quiz</Button>
-                            </Link>
-                        </div>
                     </div>
 
                     {group.quizzes && group.quizzes.length > 0 ? (

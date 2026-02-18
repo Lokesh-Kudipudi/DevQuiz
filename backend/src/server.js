@@ -21,6 +21,11 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
+    socket.on('join_round', (roundId) => {
+        socket.join('round_' + roundId);
+        console.log(`Client ${socket.id} joined round ${roundId}`);
+    });
+
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
     });

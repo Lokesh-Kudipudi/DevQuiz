@@ -15,20 +15,37 @@ const codingRoundSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    type: {
+        type: String,
+        enum: ['Piston', 'External'],
+        default: 'Piston'
+    },
+    status: {
+        type: String,
+        enum: ['Pending', 'Live', 'Completed'],
+        default: 'Pending'
+    },
     timeLimit: {
-        type: Number, // in minutes
+        type: Number,
         default: 60
+    },
+    startTime: Date,
+    endTime: Date,
+    allowSelfAttempt: {
+        type: Boolean,
+        default: false
     },
     questions: [{
         title: { type: String, required: true },
-        description: { type: String, required: true },
+        description: { type: String }, // Optional for External
         difficulty: {
             type: String,
             enum: ['Easy', 'Medium', 'Hard'],
             required: true
         },
-        topic: { type: String, required: true }, // e.g., "Arrays", "DP"
-        starterCode: { type: String, required: true },
+        topic: { type: String }, // Optional for External if just URL
+        // Piston specific
+        starterCode: { type: String },
         language: { 
             type: String, 
             default: 'javascript' 
@@ -37,25 +54,38 @@ const codingRoundSchema = new mongoose.Schema({
             input: String,
             expectedOutput: String,
             isHidden: { type: Boolean, default: false }
-        }]
+        }],
+        // External specific
+        platform: { type: String }, // LeetCode, CodeChef, HackerRank
+        url: { type: String },
+        points: { type: Number, min: 1, max: 5 },
+        addedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
     }],
     participants: [{
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        startTime: Date,
+        startTime: Date, // For Piston rounds (individual start)
         submitTime: Date,
         score: { type: Number, default: 0 },
         // Track status of each question for the user
         questionStatus: [{
-            questionId: mongoose.Schema.Types.ObjectId, // implicitly the _id of the question subdoc
+            questionId: mongoose.Schema.Types.ObjectId,
             status: { 
                 type: String, 
-                enum: ['Pending', 'Passed', 'Failed'], 
+                enum: ['Pending', 'Solving', 'Passed', 'Failed'], 
                 default: 'Pending' 
             },
-            code: String // Last submitted code
+            code: String, // Last submitted code (Piston)
+            startTime: Date, // For External (when they clicked Start) - Original Start Time
+            endTime: Date,   // For External (when they clicked Done)
+            timeTaken: Number, // in seconds - Final calculated time
+            accumulatedTime: { type: Number, default: 0 }, // Time spent in previous sessions (seconds)
+            lastStartTime: Date // Start time of current active session
         }]
     }]
 }, { timestamps: true });
