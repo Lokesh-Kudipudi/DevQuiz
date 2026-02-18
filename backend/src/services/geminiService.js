@@ -4,9 +4,20 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const generateQuizQuestions = async (topic, difficulty, count) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                temperature: 1.0, // Maximum creativity
+                topP: 0.95,
+                topK: 40,
+            }
+        });
 
+        // Add random seed to prompt to prevent caching and ensure variety
+        const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+        
         const prompt = `Generate ${count} multiple choice questions about "${topic}" at "${difficulty}" difficulty level.
+        IMPORTANT: Use this random seed "${randomSeed}" to ensure unique questions every time. Do not repeat previous questions.
         Return the response strictly in JSON format array. 
         Each object in the array should have:
         - question: String
@@ -39,9 +50,20 @@ const generateQuizQuestions = async (topic, difficulty, count) => {
 
 const generateCodingQuestions = async (topic, difficulty, count) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Using a capable model
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                temperature: 1.0, // Maximum creativity
+                topP: 0.95,
+                topK: 40,
+            }
+        }); // Using a capable model
+
+        // Add random seed to prompt to prevent caching and ensure variety
+        const randomSeed = Math.random().toString(36).substring(7) + Date.now();
 
         const prompt = `Generate ${count} coding problems about "${topic}" at "${difficulty}" difficulty level.
+        IMPORTANT: Use this random seed "${randomSeed}" to ensure unique questions every time. Do not repeat common problems if possible.
         Return the response strictly in JSON format array.
         
         CRITICAL INSTRUCTION FOR C++ STARTER CODE:

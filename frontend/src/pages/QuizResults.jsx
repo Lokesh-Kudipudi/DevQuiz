@@ -81,7 +81,7 @@ const QuizResults = () => {
                                         <th className="px-6 py-4">Rank</th>
                                         <th className="px-6 py-4">Participant</th>
                                         <th className="px-6 py-4 text-center">Score</th>
-                                        <th className="px-6 py-4 text-center">Accuracy</th>
+
                                         <th className="px-6 py-4 text-right">Date</th>
                                     </tr>
                                 </thead>
@@ -134,9 +134,7 @@ const QuizResults = () => {
                                                         {result.score} pts
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-center text-sm text-gray-400">
-                                                    - {/* Placeholder if we don't have max score */}
-                                                </td>
+
                                                 <td className="px-6 py-4 text-right text-gray-400 text-sm font-mono">
                                                     {new Date(result.attemptedAt).toLocaleDateString()}
                                                 </td>

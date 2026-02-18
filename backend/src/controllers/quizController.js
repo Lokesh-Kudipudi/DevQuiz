@@ -153,9 +153,57 @@ const getQuizResults = async (req, res) => {
     }
 };
 
+// @desc    Delete quiz
+// @route   DELETE /api/quizzes/:id
+const deleteQuiz = async (req, res) => {
+    try {
+        const quiz = await Quiz.findById(req.params.id);
+
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+
+        const group = await Group.findById(quiz.group);
+        
+        // Check if user is the creator of the quiz OR the creator of the group
+        const isQuizCreator = quiz.creator.toString() === req.user._id.toString();
+        const isGroupAdmin = group && group.creator.toString() === req.user._id.toString();
+
+        if (!isQuizCreator && !isGroupAdmin) {
+            return res.status(403).json({ message: 'Not authorized to delete this quiz' });
+        }
+
+        // Revert user scores
+        const attempts = await Attempt.find({ quiz: quiz._id });
+        for (const attempt of attempts) {
+            await User.findByIdAndUpdate(attempt.user, {
+                $inc: { totalScore: -attempt.score }
+            });
+        }
+
+        // Delete associated attempts
+        await Attempt.deleteMany({ quiz: quiz._id });
+
+        // Remove quiz from group
+        if (group) {
+            group.quizzes = group.quizzes.filter(qId => qId.toString() !== quiz._id.toString());
+            await group.save();
+        }
+
+        await Quiz.findByIdAndDelete(req.params.id);
+
+        res.json({ message: 'Quiz removed' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     createQuiz,
     getQuiz,
     attemptQuiz,
-    getQuizResults
+    getQuizResults,
+    deleteQuiz
 };
+
