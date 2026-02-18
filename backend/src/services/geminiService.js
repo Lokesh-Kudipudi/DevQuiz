@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generateQuizQuestions = async (topic, difficulty, count) => {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-pro",
             generationConfig: {
                 temperature: 1.0, // Maximum creativity
                 topP: 0.95,
@@ -15,24 +15,26 @@ const generateQuizQuestions = async (topic, difficulty, count) => {
 
         // Add random seed to prompt to prevent caching and ensure variety
         const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+        const ticks = "```";
         
         const prompt = `Generate ${count} multiple choice questions about "${topic}" at "${difficulty}" difficulty level.
         IMPORTANT: Use this random seed "${randomSeed}" to ensure unique questions every time. Do not repeat previous questions.
         Return the response strictly in JSON format array. 
         Each object in the array should have:
-        - question: String
+        - question: String (include markdown code blocks for code snippets)
         - options: Array of 4 strings
         - correctAnswer: String (must be one of the options)
         
         Example format:
         [
             {
-                "question": "What is ...?",
+                "question": "What is the output of the following code?\\n${ticks}java\\npublic class Main { ... }\\n${ticks}",
                 "options": ["A", "B", "C", "D"],
                 "correctAnswer": "A"
             }
         ]
-        Do not add any markdown formatting like \`\`\`json. Just the raw JSON array.`;
+        Do NOT wrap the entire JSON response in markdown (like ${ticks}json). Return ONLY the raw JSON array.
+        However, you MUST use markdown code blocks (triple backticks) INSIDE the "question" string for any code snippets.`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -51,7 +53,7 @@ const generateQuizQuestions = async (topic, difficulty, count) => {
 const generateCodingQuestions = async (topic, difficulty, count) => {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-pro",
             generationConfig: {
                 temperature: 1.0, // Maximum creativity
                 topP: 0.95,

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 import Layout from '../components/ui/Layout';
 import Card from '../components/ui/Card';
+import QuestionDisplay from '../components/ui/QuestionDisplay';
 import Button from '../components/ui/Button';
 
 const TakeQuiz = () => {
@@ -168,7 +169,7 @@ const TakeQuiz = () => {
                                             {qIdx + 1}
                                         </span>
                                         <h4 className="text-lg font-medium text-white pt-1">
-                                            {q.question}
+                                            <QuestionDisplay content={q.question} />
                                         </h4>
                                     </div>
                                     <div className="space-y-2 ml-11">
@@ -225,7 +226,9 @@ const TakeQuiz = () => {
                 </div>
 
                 <Card className="mb-8 min-h-[400px] flex flex-col">
-                    <h2 className="text-xl font-bold mb-8 text-white">{currentQuestion.question}</h2>
+                    <div className="mb-8 text-white">
+                        <QuestionDisplay content={currentQuestion.question} />
+                    </div>
                     
                     <div className="space-y-3 flex-grow">
                         {currentQuestion.options.map((option, idx) => (
