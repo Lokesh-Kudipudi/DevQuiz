@@ -104,6 +104,7 @@ const Dashboard = () => {
                     )}
                 </div>
 
+
                 {/* Stats Section */}
                 <div className="space-y-6">
                     <Card className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 border-primary-500/20">
@@ -113,34 +114,22 @@ const Dashboard = () => {
                             </svg>
                             Personal Stats
                         </h2>
-                        <div className="flex items-end space-x-2 mb-1">
-                             <div className="text-5xl font-bold text-white tracking-tighter">{user?.totalScore || 0}</div>
-                             <div className="text-sm text-gray-400 mb-2 font-medium">pts</div>
-                        </div>
-                        <p className="text-sm text-gray-500 mb-6">Total Score across all quizzes</p>
                         
-                        <div className="w-full bg-gray-800 rounded-full h-1.5 mb-2 overflow-hidden">
-                            <div className="bg-primary-500 h-1.5 rounded-full" style={{ width: '0%' }}></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-400">
-                            <span>Level 1</span>
-                            <span>0% to Level 2</span>
-                        </div>
-                    </Card>
-
-                    <Card>
-                         <h2 className="text-lg font-semibold mb-4 text-gray-200 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Recent Activity
-                         </h2>
-                         <div className="space-y-4">
-                             {/* Placeholder for no activity */}
-                             <div className="text-center py-6 text-gray-500 text-sm border border-dashed border-gray-700/50 rounded-lg">
-                                 No recent activity.
-                             </div>
-                         </div>
+                        {groups.length === 0 ? (
+                            <p className="text-sm text-gray-500 text-center py-4">Join a group to see your stats.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {groups.map(group => (
+                                    <div key={group._id} className="flex justify-between items-center border-b border-gray-800 pb-2 last:border-0 last:pb-0">
+                                        <span className="text-gray-300 truncate pr-4">{group.name}</span>
+                                        <div className="flex items-end space-x-1 shrink-0">
+                                            <span className="font-bold text-white">{group.totalPoints || 0}</span>
+                                            <span className="text-xs text-gray-500 mb-0.5">pts</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </Card>
                 </div>
             </div>

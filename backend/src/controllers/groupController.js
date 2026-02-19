@@ -69,7 +69,35 @@ const joinGroup = async (req, res) => {
 const getUserGroups = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate('joinedGroups');
-        res.json(user.joinedGroups);
+        
+        const groupsWithStats = await Promise.all(user.joinedGroups.map(async (group) => {
+            const groupData = group.toObject();
+            
+            // Calculate Quiz Scores
+            const quizzes = await require('../models/Quiz').find({ group: group._id });
+            let quizScore = 0;
+            quizzes.forEach(quiz => {
+                const participant = quiz.participants.find(p => p.user.toString() === req.user._id.toString());
+                if (participant) {
+                    quizScore += participant.score;
+                }
+            });
+
+            // Calculate Coding Round Scores
+            const codingRounds = await CodingRound.find({ group: group._id });
+            let codingScore = 0;
+            codingRounds.forEach(round => {
+                const participant = round.participants.find(p => p.user.toString() === req.user._id.toString());
+                if (participant) {
+                    codingScore += participant.score;
+                }
+            });
+
+            groupData.totalPoints = quizScore + codingScore;
+            return groupData;
+        }));
+
+        res.json(groupsWithStats);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });

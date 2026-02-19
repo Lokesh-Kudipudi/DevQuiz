@@ -42,7 +42,7 @@ const Leaderboard = ({ groupId }) => {
                             <span className="font-medium">{user.name}</span>
                         </div>
                         <div className="font-bold text-indigo-300">
-                            {user.totalScore} pts
+                            {user.groupScore || 0} pts
                         </div>
                     </div>
                 ))}
