@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import axios from '../api/axios';
 import Layout from '../components/ui/Layout';
 import Card from '../components/ui/Card';
@@ -16,24 +17,30 @@ const CreateQuiz = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
-        try {
-            await axios.post('/api/quizzes/generate', {
-                topic,
-                difficulty,
-                count,
-                groupId
-            });
-            navigate(`/groups/${groupId}`);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to generate quiz');
-        } finally {
-            setLoading(false);
-        }
+        const promise = axios.post('/api/quizzes/generate', {
+            topic,
+            difficulty,
+            count,
+            groupId
+        }).then(response => {
+            window.dispatchEvent(new Event('group-content-updated'));
+            return response;
+        });
+
+        toast.promise(
+            promise,
+            {
+                loading: 'Generating your quiz with AI...',
+                success: 'Quiz generated successfully!',
+                error: (err) => err.response?.data?.message || 'Failed to generate quiz'
+            }
+        );
+
+        navigate(`/groups/${groupId}`);
     };
 
     return (

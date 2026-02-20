@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import axios from '../api/axios';
 import Layout from '../components/ui/Layout';
 import Card from '../components/ui/Card';
@@ -116,11 +117,18 @@ const CreateCodingRound = () => {
         setGenerating(true);
         setError('');
         try {
-            const { data } = await axios.post('/api/coding-rounds/generate', {
-                topic: aiTopic,
-                difficulty: aiDifficulty,
-                count: aiCount
-            });
+            const { data } = await toast.promise(
+                axios.post('/api/coding-rounds/generate', {
+                    topic: aiTopic,
+                    difficulty: aiDifficulty,
+                    count: aiCount
+                }),
+                {
+                    loading: 'Generating coding questions with AI...',
+                    success: 'Questions generated successfully!',
+                    error: 'Failed to generate questions.'
+                }
+            );
             
             setQuestions(data);
             setGenerationMode('manual');

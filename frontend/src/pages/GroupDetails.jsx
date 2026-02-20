@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 import axios from '../api/axios';
 import Leaderboard from '../components/Leaderboard';
 import Layout from '../components/ui/Layout';
@@ -8,9 +10,42 @@ import Button from '../components/ui/Button';
 
 const GroupDetails = () => {
     const { id } = useParams();
+    const { user } = useAuth();
     const [group, setGroup] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [deleteModal, setDeleteModal] = useState({ show: false, type: null, id: null, title: '' });
+
+    const handleDeleteClick = (type, id, title) => {
+        setDeleteModal({ show: true, type, id, title });
+    };
+
+    const confirmDelete = async () => {
+        const { type, id } = deleteModal;
+        try {
+            if (type === 'quiz') {
+                 await axios.delete(`/api/quizzes/${id}`);
+                 setGroup(prev => ({
+                     ...prev,
+                     quizzes: prev.quizzes.filter(q => q._id !== id)
+                 }));
+                 toast.success('Quiz deleted successfully');
+            } else if (type === 'coding-round') {
+                 await axios.delete(`/api/coding-rounds/${id}`);
+                 setGroup(prev => ({
+                     ...prev,
+                     codingRounds: prev.codingRounds.filter(r => r._id !== id)
+                 }));
+                 toast.success('Coding round deleted successfully');
+            }
+        } catch (err) {
+            toast.error(`Failed to delete ${type === 'quiz' ? 'quiz' : 'round'}`);
+            console.error(err);
+        } finally {
+            setDeleteModal({ show: false, type: null, id: null, title: '' });
+        }
+    };
 
     useEffect(() => {
         const fetchGroup = async () => {
@@ -24,6 +59,10 @@ const GroupDetails = () => {
             }
         };
         fetchGroup();
+
+        const handleRefresh = () => fetchGroup();
+        window.addEventListener('group-content-updated', handleRefresh);
+        return () => window.removeEventListener('group-content-updated', handleRefresh);
     }, [id]);
 
     if (loading) return (
@@ -97,6 +136,99 @@ const GroupDetails = () => {
                 </div>
             </Card>
 
+            {/* Create Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowCreateModal(false)}>
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl transform transition-all scale-100" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-white">Create New</h2>
+                            <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-white">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Link 
+                                to={`/groups/${id}/create-coding-round`}
+                                className="group relative overflow-hidden bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-primary-500/50 rounded-xl p-5 transition-all duration-300 text-left"
+                            >
+                                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="w-10 h-10 bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 text-primary-400 group-hover:text-primary-300 group-hover:scale-110 transition-all">
+                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-white mb-1">Coding Round</h3>
+                                    <p className="text-sm text-gray-400">Create a coding challenge with custom or AI-generated questions.</p>
+                                </div>
+                            </Link>
+
+                            <Link 
+                                to={`/groups/${id}/create-quiz`}
+                                className="group relative overflow-hidden bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-green-500/50 rounded-xl p-5 transition-all duration-300 text-left"
+                            >
+                                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="w-10 h-10 bg-green-900/30 rounded-lg flex items-center justify-center mb-3 text-green-400 group-hover:text-green-300 group-hover:scale-110 transition-all">
+                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-white mb-1">Quiz</h3>
+                                    <p className="text-sm text-gray-400">Create a multiple-choice quiz on any topic.</p>
+                                </div>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteModal.show && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDeleteModal({ show: false, type: null, id: null, title: '' })}>
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl transform transition-all scale-100" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center mb-4 text-red-500">
+                            <div className="p-3 bg-red-500/10 rounded-full mr-4">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-white">Delete {deleteModal.type === 'quiz' ? 'Quiz' : 'Coding Round'}</h3>
+                        </div>
+                        
+                        <p className="text-gray-300 mb-6">
+                            Are you sure you want to delete <span className="font-semibold text-white">"{deleteModal.title}"</span>? 
+                            This action cannot be undone and all associated attempts will be permanently removed.
+                        </p>
+
+                        <div className="flex justify-end gap-3">
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => setDeleteModal({ show: false, type: null, id: null, title: '' })}
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                className="bg-red-600 hover:bg-red-700 text-white border-none"
+                                onClick={confirmDelete}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Quizzes Section */}
                 <div className="lg:col-span-2 space-y-6">
@@ -108,19 +240,12 @@ const GroupDetails = () => {
                             </svg>
                             Coding Rounds
                         </h2>
-                        <div className="flex gap-4">
-                            <Link to={`/groups/${id}/create-coding-round`}>
-                                <Button size="sm" variant="secondary" className="flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                    </svg>
-                                    Create Coding Round
-                                </Button>
-                            </Link>
-                            <Link to={`/groups/${id}/create-quiz`}>
-                                <Button size="sm">+ Create Quiz</Button>
-                            </Link>
-                        </div>
+                        <Button size="sm" onClick={() => setShowCreateModal(true)} className="flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create
+                        </Button>
                     </div>
 
                     {group.codingRounds && group.codingRounds.length > 0 ? (
@@ -155,18 +280,9 @@ const GroupDetails = () => {
                                             </Link>
 
                                             <button 
-                                                onClick={async (e) => {
+                                                onClick={(e) => {
                                                     e.preventDefault();
-                                                    if(!window.confirm('Are you sure you want to delete this coding round?')) return;
-                                                    try {
-                                                        await axios.delete(`/api/coding-rounds/${round._id}`);
-                                                        setGroup(prev => ({
-                                                            ...prev,
-                                                            codingRounds: prev.codingRounds.filter(r => r._id !== round._id)
-                                                        }));
-                                                    } catch (err) {
-                                                        alert('Failed to delete round');
-                                                    }
+                                                    handleDeleteClick('coding-round', round._id, round.title);
                                                 }}
                                                 className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
                                                 title="Delete Round"
@@ -183,9 +299,7 @@ const GroupDetails = () => {
                     ) : (
                          <Card className="text-center py-12 border-dashed border-gray-800 mb-8">
                             <p className="text-gray-400 mb-4">No coding rounds created yet.</p>
-                            <Link to={`/groups/${id}/create-coding-round`}>
-                                <Button variant="outline" size="sm">Create First Round</Button>
-                            </Link>
+                            <Button variant="outline" size="sm" onClick={() => setShowCreateModal(true)}>Create First Round</Button>
                         </Card>
                     )}
 
@@ -222,25 +336,21 @@ const GroupDetails = () => {
                                             </div>
                                         </div>
                                         <div className="flex space-x-3 w-full sm:w-auto">
-                                            <Link to={`/quiz/${quiz._id}`} className="flex-1 sm:flex-none">
-                                                <Button size="sm" className="w-full">Start</Button>
-                                            </Link>
+                                            {(() => {
+                                                const hasAttempted = quiz.participants?.some(p => p.user === user._id);
+                                                return !hasAttempted && (
+                                                    <Link to={`/quiz/${quiz._id}`} className="flex-1 sm:flex-none">
+                                                        <Button size="sm" className="w-full">Start</Button>
+                                                    </Link>
+                                                );
+                                            })()}
                                             <Link to={`/quiz/${quiz._id}/results`} className="flex-1 sm:flex-none">
                                                 <Button size="sm" variant="secondary" className="w-full">Results</Button>
                                             </Link>
                                             <button 
-                                                onClick={async (e) => {
+                                                onClick={(e) => {
                                                     e.preventDefault();
-                                                    if(!window.confirm('Are you sure you want to delete this quiz? This will also delete all associated attempts.')) return;
-                                                    try {
-                                                        await axios.delete(`/api/quizzes/${quiz._id}`);
-                                                        setGroup(prev => ({
-                                                            ...prev,
-                                                            quizzes: prev.quizzes.filter(q => q._id !== quiz._id)
-                                                        }));
-                                                    } catch (err) {
-                                                        alert('Failed to delete quiz');
-                                                    }
+                                                    handleDeleteClick('quiz', quiz._id, quiz.title);
                                                 }}
                                                 className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
                                                 title="Delete Quiz"
@@ -257,9 +367,7 @@ const GroupDetails = () => {
                     ) : (
                         <Card className="text-center py-12 border-dashed border-gray-800">
                             <p className="text-gray-400 mb-4">No quizzes created yet.</p>
-                            <Link to={`/groups/${id}/create-quiz`}>
-                                <Button variant="outline" size="sm">Create the first quiz</Button>
-                            </Link>
+                            <Button variant="outline" size="sm" onClick={() => setShowCreateModal(true)}>Create the first quiz</Button>
                         </Card>
                     )}
                 </div>

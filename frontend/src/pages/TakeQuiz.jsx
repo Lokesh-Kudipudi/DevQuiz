@@ -14,8 +14,6 @@ const TakeQuiz = () => {
     const [answers, setAnswers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [score, setScore] = useState(null);
-    const [total, setTotal] = useState(0);
 
     useEffect(() => {
         const fetchQuiz = async () => {
@@ -24,12 +22,11 @@ const TakeQuiz = () => {
                 setQuiz(data);
                 
                 if (data.attempt) {
-                    setScore(data.attempt.score);
-                    setTotal(data.questions.length); // Assuming questions length is total
-                    // reconstruct answers/review state if needed, or just use data.attempt
-                } else {
-                    setAnswers(new Array(data.questions.length).fill(null));
+                    navigate(`/quiz/${id}/results`, { replace: true });
+                    return;
                 }
+                
+                setAnswers(new Array(data.questions.length).fill(null));
             } catch (err) {
                 console.error('Failed to load quiz');
             } finally {
@@ -37,10 +34,9 @@ const TakeQuiz = () => {
             }
         };
         fetchQuiz();
-    }, [id]);
+    }, [id, navigate]);
 
     const handleOptionSelect = (option) => {
-        if (score !== null) return; // Prevent changing answers if already submitted
         const newAnswers = [...answers];
         newAnswers[currentQuestionIndex] = {
             questionIndex: currentQuestionIndex,
@@ -65,13 +61,8 @@ const TakeQuiz = () => {
         setSubmitting(true);
         try {
             const filledAnswers = answers.map((ans, index) => ans || { questionIndex: index, selectedOption: '' });
-            const { data } = await axios.post(`/api/quizzes/${id}/attempt`, { answers: filledAnswers });
-            
-            // Refetch to get the full attempt object with proper structure if needed, or just update local state
-            setScore(data.score);
-            setTotal(data.total);
-            // Updating quiz state to include the new attempt so UI switches to review mode
-            setQuiz(prev => ({ ...prev, attempt: { score: data.score, answers: data.processedAnswers } }));
+            await axios.post(`/api/quizzes/${id}/attempt`, { answers: filledAnswers });
+            navigate(`/quiz/${id}/results`, { replace: true });
         } catch (err) {
             console.error('Failed to submit quiz');
         } finally {
@@ -93,117 +84,7 @@ const TakeQuiz = () => {
         </Layout>
     );
 
-    // REVIEW MODE / COMPLETED QUIZ
-    if (score !== null || quiz.attempt) {
-        const attempt = quiz.attempt || { score, answers: [] }; // Fallback handling
-        const userAnswers = attempt.answers || []; // Array of { questionIndex, selectedOption, isCorrect }
-        const percentage = Math.round(((score !== null ? score : attempt.score) / quiz.questions.length) * 100);
 
-        return (
-            <Layout>
-                <div className="max-w-3xl mx-auto">
-                    <Card className="text-center mb-8 border-primary-500/20 bg-gradient-to-br from-gray-800 to-gray-900/50">
-                        <h2 className="text-3xl font-bold mb-2 text-white">Quiz Results</h2>
-                        <p className="text-gray-400 mb-8">Great job on completing the quiz!</p>
-                        
-                        <div className="flex justify-center items-center mb-8">
-                            <div className="relative w-40 h-40">
-                                <svg className="w-full h-full" viewBox="0 0 36 36">
-                                    <path
-                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        fill="none"
-                                        stroke="#1f2937"
-                                        strokeWidth="3"
-                                    />
-                                    <path
-                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        fill="none"
-                                        stroke={percentage >= 70 ? "#10b981" : percentage >= 40 ? "#fbbf24" : "#ef4444"}
-                                        strokeWidth="3"
-                                        strokeDasharray={`${percentage}, 100`}
-                                        className="animate-[spin_1s_ease-out_reverse]"
-                                    />
-                                </svg>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                                    <span className="text-4xl font-bold text-white">{percentage}%</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="text-xl mb-8">
-                            You scored <span className="font-bold text-primary-400">{score !== null ? score : attempt.score}</span> out of <span className="font-bold text-white">{quiz.questions.length}</span>
-                        </div>
-                        
-                        <div className="flex justify-center space-x-4">
-                            <Button 
-                                onClick={() => navigate(`/groups/${quiz.group._id || quiz.group}`)}
-                                variant="secondary"
-                            >
-                                Back to Group
-                            </Button>
-                            <Button 
-                                onClick={() => navigate(`/quiz/${id}/results`)}
-                            >
-                                View Leaderboard
-                            </Button>
-                        </div>
-                    </Card>
-
-                    <h3 className="text-2xl font-bold mb-6 text-white flex items-center">
-                        <svg className="w-6 h-6 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Review Solutions
-                    </h3>
-                    
-                    <div className="space-y-6 pb-10">
-                        {quiz.questions.map((q, qIdx) => {
-                            const userAnsObj = userAnswers.find(a => a.questionIndex === qIdx);
-                            const userSelected = userAnsObj?.selectedOption;
-                            const isCorrect = userAnsObj?.isCorrect;
-
-                            return (
-                                <Card key={qIdx} className={`border-l-4 ${isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}>
-                                    <div className="flex items-start mb-4">
-                                        <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-bold text-sm ${isCorrect ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
-                                            {qIdx + 1}
-                                        </span>
-                                        <h4 className="text-lg font-medium text-white pt-1">
-                                            <QuestionDisplay content={q.question} />
-                                        </h4>
-                                    </div>
-                                    <div className="space-y-2 ml-11">
-                                        {q.options.map((opt, optIdx) => {
-                                            let optionClass = "p-3 rounded-lg border border-gray-700/50 bg-gray-800/50";
-                                            let icon = null;
-                                            
-                                            // Highlight logic
-                                            if (opt === q.correctAnswer) {
-                                                optionClass = "p-3 rounded-lg border border-green-500/50 bg-green-500/10 text-green-200"; // Correct Answer
-                                                icon = <span className="text-green-400 text-sm font-bold ml-2">✓ Correct Answer</span>;
-                                            } else if (opt === userSelected && !isCorrect) {
-                                                optionClass = "p-3 rounded-lg border border-red-500/50 bg-red-500/10 text-red-200"; // Wrong Selection
-                                                icon = <span className="text-red-400 text-sm font-bold ml-2">✗ Your Answer</span>;
-                                            }
-
-                                            return (
-                                                <div key={optIdx} className={optionClass}>
-                                                    <div className="flex justify-between items-center">
-                                                        <span>{opt}</span>
-                                                        {icon}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                </div>
-            </Layout>
-        );
-    }
 
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const currentAnswer = answers[currentQuestionIndex];
