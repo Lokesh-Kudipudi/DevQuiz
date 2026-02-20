@@ -37,9 +37,18 @@ const CodingRoundResults = () => {
     if (error) return <Layout>{error}</Layout>;
     if (!round) return <Layout>Round not found</Layout>;
 
-    // Sort participants by score (desc) then time (asc - if we had total time)
-    // For now, just score.
-    const sortedParticipants = [...round.participants].sort((a, b) => b.score - a.score);
+    // Deduplicate participants (keep highest score)
+    const uniqueParticipants = Object.values(
+        round.participants.reduce((acc, p) => {
+            const userId = (p.user._id || p.user).toString();
+            if (!acc[userId] || p.score > acc[userId].score) {
+                acc[userId] = p;
+            }
+            return acc;
+        }, {})
+    );
+
+    const sortedParticipants = uniqueParticipants.sort((a, b) => b.score - a.score);
 
     return (
         <Layout>
@@ -66,7 +75,10 @@ const CodingRoundResults = () => {
                                     <th className="px-6 py-4">Rank</th>
                                     <th className="px-6 py-4">Participant</th>
                                     <th className="px-6 py-4 text-center">Score</th>
-                                    <th className="px-6 py-4 text-center">Solved</th>
+                                    {round.questions.map((q, idx) => (
+                                        <th key={q._id} className="px-6 py-4 text-center">Q{idx + 1}</th>
+                                    ))}
+                                    <th className="px-6 py-4 text-center">Total Time</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
@@ -85,7 +97,16 @@ const CodingRoundResults = () => {
                                         rankIcon = "🥉";
                                     }
 
-                                    const solvedCount = p.questionStatus?.filter(qs => qs.status === 'Passed').length || 0;
+                                    // Calculate total time taken (in seconds)
+                                    const totalTime = p.questionStatus?.reduce((acc, qs) => {
+                                        return acc + (qs.timeTaken || 0);
+                                    }, 0) || 0;
+
+                                    const formatTotalTime = (seconds) => {
+                                        const mins = Math.floor(seconds / 60);
+                                        const secs = Math.floor(seconds % 60);
+                                        return `${mins}m ${secs}s`;
+                                    };
 
                                     return (
                                         <tr key={p.user._id} className="hover:bg-gray-800/50 transition-colors">
@@ -111,8 +132,28 @@ const CodingRoundResults = () => {
                                                     {p.score} pts
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-center text-gray-400">
-                                                {solvedCount} / {round.questions.length}
+                                            {round.questions.map(q => {
+                                                const statusList = p.questionStatus || [];
+                                                const status = statusList.find(s => s.questionId === q._id);
+                                                return (
+                                                    <td key={q._id} className="px-6 py-4 text-center border-l border-gray-800/50">
+                                                         {status && status.status === 'Passed' ? (
+                                                             <div className="flex flex-col items-center">
+                                                                 <span className="text-green-400 font-bold">✓</span>
+                                                                 {status.timeTaken > 0 && (
+                                                                     <span className="text-[10px] text-gray-500 mt-1">
+                                                                         {Math.floor(status.timeTaken)}s
+                                                                     </span>
+                                                                 )}
+                                                             </div>
+                                                         ) : (
+                                                             <span className="text-gray-600">-</span>
+                                                         )}
+                                                    </td>
+                                                );
+                                            })}
+                                            <td className="px-6 py-4 text-center text-gray-400 font-mono">
+                                                {formatTotalTime(totalTime)}
                                             </td>
                                         </tr>
                                     );

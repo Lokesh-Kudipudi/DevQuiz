@@ -7,8 +7,11 @@ import Button from '../components/ui/Button';
 import LiveLeaderboard from '../components/quiz/LiveLeaderboard';
 import { useAuth } from '../context/AuthContext';
 
+import Modal from '../components/ui/Modal';
+
 // Timer Component for individual questions
 const QuestionTimer = ({ startTime, accumulatedTime, status }) => {
+    // ... (existing timer code) ...
     const [time, setTime] = useState(0);
 
     useEffect(() => {
@@ -59,6 +62,11 @@ const LiveCodingRound = () => {
     const [timeLeft, setTimeLeft] = useState(null);
     const [participant, setParticipant] = useState(null);
     const [error, setError] = useState('');
+
+    // Modal States
+    const [submitModalOpen, setSubmitModalOpen] = useState(false);
+    const [submitQuestionId, setSubmitQuestionId] = useState(null);
+    const [endRoundModalOpen, setEndRoundModalOpen] = useState(false);
 
     useEffect(() => {
         const init = async () => {
@@ -163,26 +171,38 @@ const LiveCodingRound = () => {
         }
     };
 
-    const handleSubmitQuestion = async (questionId) => {
-        if (!confirm('Are you sure you have completed this question on the external platform?')) return;
+    const handleSubmitClick = (questionId) => {
+        setSubmitQuestionId(questionId);
+        setSubmitModalOpen(true);
+    };
+
+    const handleConfirmSubmit = async () => {
+        if (!submitQuestionId) return;
         
         try {
-            await axios.post(`/api/coding-rounds/${id}/submit-external`, { questionId });
+            await axios.post(`/api/coding-rounds/${id}/submit-external`, { questionId: submitQuestionId });
             fetchRound();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to submit');
+        } finally {
+            setSubmitModalOpen(false);
+            setSubmitQuestionId(null);
         }
     };
 
-    const handleEndRound = async () => {
-        if (!confirm('Are you sure you want to end this round for everyone?')) return;
+    const handleEndRoundClick = () => {
+        setEndRoundModalOpen(true);
+    };
 
+    const handleConfirmEndRound = async () => {
         try {
             await axios.put(`/api/coding-rounds/${id}/end`);
             // Socket will handle redirect, but we can also force it
             navigate(`/coding-round/${id}/results`);
         } catch (err) {
              setError(err.response?.data?.message || 'Failed to end round');
+        } finally {
+            setEndRoundModalOpen(false);
         }
     };
 
@@ -234,7 +254,7 @@ const LiveCodingRound = () => {
                                 <Button 
                                     variant="danger" 
                                     className="bg-red-600 hover:bg-red-700"
-                                    onClick={handleEndRound}
+                                    onClick={() => handleEndRoundClick()}
                                 >
                                     End Round
                                 </Button>
@@ -327,7 +347,7 @@ const LiveCodingRound = () => {
                                                     </div>
                                                     <Button 
                                                         className="bg-green-600 hover:bg-green-700 w-full"
-                                                        onClick={() => handleSubmitQuestion(q._id)}
+                                                        onClick={() => handleSubmitClick(q._id)}
                                                     >
                                                         Done ✅
                                                     </Button>
@@ -359,6 +379,56 @@ const LiveCodingRound = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Submit Question Modal */}
+            <Modal
+                isOpen={submitModalOpen}
+                onClose={() => setSubmitModalOpen(false)}
+                title="Submit Question"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setSubmitModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={handleConfirmSubmit}
+                        >
+                            Confirm Submit
+                        </Button>
+                    </>
+                }
+            >
+                <p>Are you sure you have completed this question on the external platform?</p>
+                <p className="text-sm text-gray-400 mt-2">
+                    Make sure all test cases passed on the external site before submitting here.
+                </p>
+            </Modal>
+
+            {/* End Round Modal */}
+            <Modal
+                isOpen={endRoundModalOpen}
+                onClose={() => setEndRoundModalOpen(false)}
+                title="End Round"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setEndRoundModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="bg-red-600 hover:bg-red-700"
+                            onClick={handleConfirmEndRound}
+                        >
+                            End Round
+                        </Button>
+                    </>
+                }
+            >
+                <p>Are you sure you want to end this round for everyone?</p>
+                <p className="text-sm text-red-400 mt-2">
+                    This action cannot be undone. All participants will be redirected to the results page immediately.
+                </p>
+            </Modal>
         </Layout>
     );
 };

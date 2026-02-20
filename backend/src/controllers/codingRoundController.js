@@ -190,14 +190,7 @@ const joinCodingRound = async (req, res) => {
         const round = await CodingRound.findById(req.params.id);
         if (!round) return res.status(404).json({ message: 'Round not found' });
 
-        const existingParticipant = round.participants.find(p => 
-            (p.user._id || p.user).toString() === req.user._id.toString()
-        );
-        
-        if (existingParticipant) {
-            return res.json({ message: 'Already joined', participant: existingParticipant });
-        }
-
+        // Prepare new participant object
         const newParticipant = {
             user: req.user._id,
             startTime: new Date(),
@@ -208,15 +201,39 @@ const joinCodingRound = async (req, res) => {
             }))
         };
 
-        round.participants.push(newParticipant);
-        await round.save();
+        // Atomically add participant ONLY if not already in list
+        const updatedRound = await CodingRound.findOneAndUpdate(
+            { 
+                _id: req.params.id, 
+                'participants.user': { $ne: req.user._id } 
+            },
+            {
+                $push: { participants: newParticipant }
+            },
+            { new: true }
+        ).populate('participants.user', 'name');
+
+        if (!updatedRound) {
+            // User already exists or round deleted (but we checked existence above)
+            // Fetch current state to return existing participant
+            const currentRound = await CodingRound.findById(req.params.id);
+            if (!currentRound) return res.status(404).json({ message: 'Round not found' });
+            
+            const existingParticipant = currentRound.participants.find(p => 
+                (p.user._id || p.user).toString() === req.user._id.toString()
+            );
+            return res.json({ message: 'Already joined', participant: existingParticipant });
+        }
 
         // Emit socket event for leaderboard update
         const io = req.app.get('socketio');
         if (io) {
-            await round.populate('participants.user', 'name');
+            // We already populated user in findOneAndUpdate options? 
+            // Actually findOneAndUpdate returns the doc, but populate might need explicit call or options.
+            // The .populate() chained above works on the query result.
+            
              io.to(`round_${round._id}`).emit('leaderboard_update', {
-                leaderboard: round.participants.map(p => ({
+                leaderboard: updatedRound.participants.map(p => ({
                     user: p.user,
                     score: p.score,
                     status: p.questionStatus
@@ -387,6 +404,15 @@ const submitSolution = async (req, res) => {
         
         if (questionStatus) {
             questionStatus.code = code;
+            
+            // Calculate time taken if not already passed
+            if (questionStatus.status !== 'Passed') {
+                const now = new Date();
+                const startTime = participant.startTime || round.startTime || now;
+                const timeTaken = (now - new Date(startTime)) / 1000; // in seconds
+                questionStatus.timeTaken = timeTaken;
+            }
+
             if (passed && questionStatus.status !== 'Passed') {
                 questionStatus.status = 'Passed';
                 participant.score += 10; // +10 points for solving Piston
