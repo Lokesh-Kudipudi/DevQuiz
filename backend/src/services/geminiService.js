@@ -1,9 +1,11 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Remove global instance to allow per-request key
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const generateQuizQuestions = async (topic, difficulty, count) => {
+const generateQuizQuestions = async (topic, difficulty, count, apiKey) => {
     try {
+        const genAI = new GoogleGenerativeAI(apiKey || process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             generationConfig: {
@@ -12,6 +14,7 @@ const generateQuizQuestions = async (topic, difficulty, count) => {
                 topK: 40,
             }
         });
+        console.log(apiKey, process.env.GEMINI_API_KEY);
 
         // Add random seed to prompt to prevent caching and ensure variety
         const randomSeed = Math.random().toString(36).substring(7) + Date.now();
@@ -61,8 +64,9 @@ const generateQuizQuestions = async (topic, difficulty, count) => {
     }
 };
 
-const generateCodingQuestions = async (topic, difficulty, count) => {
+const generateCodingQuestions = async (topic, difficulty, count, apiKey) => {
     try {
+        const genAI = new GoogleGenerativeAI(apiKey || process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             generationConfig: {
@@ -71,6 +75,8 @@ const generateCodingQuestions = async (topic, difficulty, count) => {
                 topK: 40,
             }
         }); // Using a capable model
+        console.log(apiKey, process.env.GEMINI_API_KEY);
+
 
         // Add random seed to prompt to prevent caching and ensure variety
         const randomSeed = Math.random().toString(36).substring(7) + Date.now();
@@ -131,8 +137,9 @@ const generateCodingQuestions = async (topic, difficulty, count) => {
     }
 };
 
-const generateOASectionQuestions = async (section) => {
+const generateOASectionQuestions = async (section, apiKey) => {
     try {
+        const genAI = new GoogleGenerativeAI(apiKey || process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({
             model: "gemini-2.5-flash",
             generationConfig: {
@@ -141,6 +148,8 @@ const generateOASectionQuestions = async (section) => {
                 topK: 40,
             }
         });
+        console.log(apiKey, process.env.GEMINI_API_KEY);
+
 
         const randomSeed = Math.random().toString(36).substring(7) + Date.now();
         const difficulty = section.difficulty || 'Medium';

@@ -1,4 +1,5 @@
 const Quiz = require('../models/Quiz');
+const WHITELISTED_EMAILS = require('../config/whitelist');
 const Group = require('../models/Group');
 const Attempt = require('../models/Attempt');
 const User = require('../models/User');
@@ -20,7 +21,13 @@ const createQuiz = async (req, res) => {
         }
 
         // Generate questions using Gemini
-        const questions = await generateQuizQuestions(topic, difficulty, count);
+        const apiKey = req.headers['x-gemini-api-key'];
+        
+        if (!apiKey && !WHITELISTED_EMAILS.includes(req.user.email)) {
+             return res.status(400).json({ message: 'API Key required. Please configure your Gemini API Key in Group settings.' });
+        }
+
+        const questions = await generateQuizQuestions(topic, difficulty, count, apiKey);
 
         // Create Quiz
         const quiz = await Quiz.create({

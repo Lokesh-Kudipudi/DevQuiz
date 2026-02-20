@@ -1,4 +1,5 @@
 const CodingRound = require('../models/CodingRound');
+const WHITELISTED_EMAILS = require('../config/whitelist');
 const Group = require('../models/Group');
 const User = require('../models/User');
 const { generateCodingQuestions } = require('../services/geminiService');
@@ -480,7 +481,13 @@ const generateQuestions = async (req, res) => {
             return res.status(400).json({ message: 'Please provide topic, difficulty, and count' });
         }
 
-        const questions = await generateCodingQuestions(topic, difficulty, count);
+        const apiKey = req.headers['x-gemini-api-key'];
+
+        if (!apiKey && !WHITELISTED_EMAILS.includes(req.user.email)) {
+             return res.status(400).json({ message: 'API Key required. Please configure your Gemini API Key.' });
+        }
+
+        const questions = await generateCodingQuestions(topic, difficulty, count, apiKey);
         res.json(questions);
     } catch (err) {
         console.error(err);

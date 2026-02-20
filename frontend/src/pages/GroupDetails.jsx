@@ -7,6 +7,7 @@ import Leaderboard from '../components/Leaderboard';
 import Layout from '../components/ui/Layout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import WHITELISTED_EMAILS from '../constants/config';
 
 const GroupDetails = () => {
     const { id } = useParams();
@@ -17,6 +18,32 @@ const GroupDetails = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ show: false, type: null, id: null, title: '' });
     const [collapsed, setCollapsed] = useState({ groupDetails: true, members: true, leaderboard: true });
+    
+    // API Key State
+    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+    const [apiKey, setApiKey] = useState('');
+    const [tempKey, setTempKey] = useState('');
+
+    useEffect(() => {
+        const storedKey = localStorage.getItem('gemini_api_key');
+        if (storedKey) setApiKey(storedKey);
+    }, []);
+
+    const handleSaveKey = (keyToSave) => {
+        const value = keyToSave !== undefined ? keyToSave : tempKey;
+        if (value && value.trim()) {
+            localStorage.setItem('gemini_api_key', value.trim());
+            setApiKey(value.trim());
+            setTempKey('');
+            toast.success('API Key saved');
+        } else {
+             localStorage.removeItem('gemini_api_key');
+             setApiKey('');
+             setTempKey(''); // Ensure temp key is cleared on remove too
+             toast.success('API Key removed');
+        }
+        setShowApiKeyModal(false);
+    };
 
     const toggleCollapse = (key) => setCollapsed(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -112,13 +139,94 @@ const GroupDetails = () => {
                     </svg>
                     Back to Dashboard
                 </Link>
-                <Button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Create New
-                </Button>
+                <div className="flex gap-3">
+                     <Button 
+                        variant="secondary" 
+                        onClick={() => {
+                            setTempKey(apiKey);
+                            setShowApiKeyModal(true);
+                        }}
+                        className="flex items-center gap-2 border border-gray-700 bg-gray-800 hover:bg-gray-700"
+                        title={apiKey ? "API Key Configured" : "Set Gemini API Key"}
+                    >
+                        <svg className={`w-4 h-4 ${apiKey ? 'text-green-400' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        {apiKey ? 'Key Set' : 'Add Key'}
+                    </Button>
+                    <Button 
+                        onClick={() => {
+                            const isWhitelisted = user?.email && WHITELISTED_EMAILS.includes(user.email);
+                            if (!apiKey && !isWhitelisted) {
+                                setShowApiKeyModal(true);
+                                toast.error('Please configure your Gemini API Key first');
+                            } else {
+                                setShowCreateModal(true);
+                            }
+                        }} 
+                        className="flex items-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Create New
+                    </Button>
+                </div>
             </div>
+
+            {/* API Key Modal */}
+            {showApiKeyModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowApiKeyModal(false)}>
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                             <svg className="w-6 h-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                            </svg>
+                            Configure Gemini API Key
+                        </h3>
+                        <p className="text-gray-400 text-sm mb-4">
+                            To prevent quota exhaustion, you can provide your own Gemini API Key. 
+                            It will be stored locally in your browser and used for generating content.
+                        </p>
+                        
+                        <div className="mb-4">
+                            <label className="block text-gray-400 text-xs uppercase font-bold mb-2">API Key</label>
+                            <input 
+                                type="text" // using text to verify input easily, or password if preferred. Text is ok for local input.
+                                value={tempKey}
+                                onChange={(e) => setTempKey(e.target.value)}
+                                placeholder="Enter your Gemini API Key"
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
+                            />
+                             <p className="text-xs text-gray-500 mt-2">
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">
+                                    Get a key from Google AI Studio
+                                </a>
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                             <Button 
+                                variant="ghost" 
+                                onClick={() => setShowApiKeyModal(false)}
+                            >
+                                Cancel
+                            </Button>
+                            {apiKey && (
+                                <Button 
+                                    className="bg-red-600/20 hover:bg-red-600/40 text-red-500 border border-red-500/50"
+                                    onClick={() => handleSaveKey('')}
+                                >
+                                    Remove Key
+                                </Button>
+                            )}
+                            <Button onClick={handleSaveKey}>
+                                Save Key
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Create Modal */}
             {showCreateModal && (

@@ -1,4 +1,5 @@
 const OnlineAssessment = require('../models/OnlineAssessment');
+const WHITELISTED_EMAILS = require('../config/whitelist');
 const Group = require('../models/Group');
 const { generateOASectionQuestions } = require('../services/geminiService');
 
@@ -27,8 +28,14 @@ const createOA = async (req, res) => {
         }
 
         // Generate questions for all sections in parallel (one Gemini call per section)
+        const apiKey = req.headers['x-gemini-api-key'];
+
+        if (!apiKey && !WHITELISTED_EMAILS.includes(req.user.email)) {
+             return res.status(400).json({ message: 'API Key required. Please configure your Gemini API Key in Group settings.' });
+        }
+
         const generatedQuestions = await Promise.all(
-            sections.map(section => generateOASectionQuestions(section))
+            sections.map(section => generateOASectionQuestions(section, apiKey))
         );
 
         const hydratedSections = sections.map((section, i) => ({
