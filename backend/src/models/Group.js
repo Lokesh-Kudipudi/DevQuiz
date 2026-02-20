@@ -27,6 +27,10 @@ const groupSchema = new mongoose.Schema({
     quizzes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Quiz'
+    }],
+    onlineAssessments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'OnlineAssessment'
     }]
 }, { timestamps: true });
 

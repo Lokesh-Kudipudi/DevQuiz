@@ -39,10 +39,12 @@ const Leaderboard = ({ groupId }) => {
                                 referrerPolicy="no-referrer"
                                 className="w-8 h-8 rounded-full" 
                             />
-                            <span className="font-medium">{user.name}</span>
+                            <span className="font-medium">
+                                {user.name.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            </span>
                         </div>
-                        <div className="font-bold text-indigo-300">
-                            {user.groupScore || 0} pts
+                        <div className="font-bold text-indigo-300 p-2">
+                            {user.groupScore || 0}
                         </div>
                     </div>
                 ))}

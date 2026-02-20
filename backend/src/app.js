@@ -51,5 +51,6 @@ app.use('/api/quizzes', require('./routes/quizzes'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 app.use('/api/coding-rounds', require('./routes/codingRoundRoutes'));
 app.use('/api/piston', require('./routes/executionRoutes'));
+app.use('/api/online-assessments', require('./routes/onlineAssessmentRoutes'));
 
 module.exports = app;

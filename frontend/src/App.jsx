@@ -12,6 +12,9 @@ import CodingRoundResults from './pages/CodingRoundResults';
 import TakeCodingRound from './pages/TakeCodingRound';
 import TakeQuiz from './pages/TakeQuiz';
 import QuizResults from './pages/QuizResults';
+import CreateOA from './pages/CreateOA';
+import TakeOA from './pages/TakeOA';
+import OAResults from './pages/OAResults';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -32,6 +35,9 @@ function App() {
             <Route path="/coding-round/:id/results" element={<CodingRoundResults />} />
             <Route path="/quiz/:id" element={<TakeQuiz />} />
             <Route path="/quiz/:id/results" element={<QuizResults />} />
+            <Route path="/groups/:groupId/create-oa" element={<CreateOA />} />
+            <Route path="/oa/:id" element={<TakeOA />} />
+            <Route path="/oa/:id/results" element={<OAResults />} />
           </Route>
         </Routes>
       </AuthProvider>

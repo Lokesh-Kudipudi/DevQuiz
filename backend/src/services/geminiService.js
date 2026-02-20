@@ -131,4 +131,65 @@ const generateCodingQuestions = async (topic, difficulty, count) => {
     }
 };
 
-module.exports = { generateQuizQuestions, generateCodingQuestions };
+const generateOASectionQuestions = async (section) => {
+    try {
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                temperature: 1.0,
+                topP: 0.95,
+                topK: 40,
+            }
+        });
+
+        const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+        const difficulty = section.difficulty || 'Medium';
+
+        const prompt = `You are generating MCQ questions for an Online Assessment section.
+
+Section Name: "${section.name}"
+Topics to cover: "${section.topics}"
+Difficulty level: "${difficulty}"
+Number of questions: ${section.questionCount}
+Random seed (for variety): "${randomSeed}"
+
+Instructions:
+- Generate exactly ${section.questionCount} multiple choice questions at "${difficulty}" difficulty covering the listed topics proportionally.
+- Each question must have exactly 4 answer options.
+- One option must be the correct answer.
+- Questions should be clear, unambiguous, and test conceptual understanding.
+- For code-related topics (e.g., output guessing, SQL, pseudo code), you SHOULD include code snippets where appropriate.
+- For non-code topics (aptitude, verbal, etc.), omit the code snippet fields.
+- Ensure variety — do not repeat similar questions.
+
+Return ONLY a raw JSON array (no markdown, no explanation). Each element MUST have:
+{
+  "questionText": "The question text WITHOUT the code snippet",
+  "codeSnippet": "Raw code only (no backticks). Omit this field entirely if no code",
+  "codeLanguage": "The language (e.g. python, java, cpp, sql). Omit if no code",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "Option A"
+}`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonData = JSON.parse(cleanedText);
+
+        // Post-process: combine questionText + codeSnippet into markdown, same as generateQuizQuestions
+        return jsonData.map(item => ({
+            question: item.codeSnippet
+                ? `${item.questionText}\n\n\`\`\`${item.codeLanguage || ''}\n${item.codeSnippet}\n\`\`\``
+                : item.questionText,
+            options: item.options,
+            correctAnswer: item.correctAnswer
+        }));
+    } catch (error) {
+        console.error(`Gemini API Error (OA Section: ${section.name}):`, error);
+        throw new Error(`Failed to generate questions for section: ${section.name}`);
+    }
+};
+
+module.exports = { generateQuizQuestions, generateCodingQuestions, generateOASectionQuestions };

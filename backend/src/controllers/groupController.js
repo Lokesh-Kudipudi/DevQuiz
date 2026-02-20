@@ -1,5 +1,6 @@
 const Group = require('../models/Group');
 const CodingRound = require('../models/CodingRound');
+const OnlineAssessment = require('../models/OnlineAssessment');
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 
@@ -123,9 +124,11 @@ const getGroupDetails = async (req, res) => {
         }
 
         const codingRounds = await CodingRound.find({ group: req.params.id }).populate('creator', 'name');
+        const onlineAssessments = await OnlineAssessment.find({ group: req.params.id }).populate('creator', 'name').select('title sections status creator createdAt participants');
 
         const groupData = group.toObject();
         groupData.codingRounds = codingRounds;
+        groupData.onlineAssessments = onlineAssessments;
 
         res.json(groupData);
     } catch (err) {
