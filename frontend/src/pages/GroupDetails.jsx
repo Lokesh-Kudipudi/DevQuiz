@@ -7,6 +7,7 @@ import Leaderboard from "../components/Leaderboard";
 import Layout from "../components/ui/Layout";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
+import Modal from "../components/ui/Modal";
 import WHITELISTED_EMAILS from "../constants/config";
 
 const GroupDetails = () => {
@@ -181,7 +182,8 @@ const GroupDetails = () => {
 
   return (
     <Layout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="max-w-[1200px] mx-auto px-8 py-10 animate-[fadeUp_0.3s_ease_forwards]">
+        <div className="flex justify-between items-center mb-6">
         <Link
           to="/dashboard"
           className="text-gray-400 hover:text-primary-400 inline-flex items-center transition-colors"
@@ -341,250 +343,113 @@ const GroupDetails = () => {
       )}
 
       {/* Create Modal */}
-      {showCreateModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowCreateModal(false)}
-        >
-          <div
-            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl transform transition-all scale-100"
-            onClick={(e) => e.stopPropagation()}
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create New"
+        subtitle="Choose what you'd like to add to this group"
+        className="w-[480px]"
+      >
+        <div className="flex flex-col gap-3">
+          {/* Quiz */}
+          <Link
+            to={`/groups/${id}/create-quiz`}
+            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#7fff6e]/30 rounded-xl transition-all duration-200"
+            onClick={() => setShowCreateModal(false)}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">
-                Create New
-              </h2>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+            <div className="w-10 h-10 rounded-lg bg-[#7fff6e]/10 flex items-center justify-center shrink-0 group-hover:bg-[#7fff6e]/20 transition-colors">
+              <svg className="w-5 h-5 text-[#7fff6e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-              <Link
-                to={`/groups/${id}/create-quiz`}
-                className="group relative overflow-hidden bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-green-500/50 rounded-xl p-5 transition-all duration-300 text-left"
-              >
-                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <svg
-                    className="w-24 h-24 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="w-10 h-10 bg-green-900/30 rounded-lg flex items-center justify-center mb-3 text-green-400 group-hover:text-green-300 group-hover:scale-110 transition-all">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1">
-                    Quiz
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Create a multiple-choice quiz on any topic.
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                to={`/groups/${id}/create-oa`}
-                className="group relative overflow-hidden bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-violet-500/50 rounded-xl p-5 transition-all duration-300 text-left"
-              >
-                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <svg
-                    className="w-24 h-24 text-violet-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                    />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="w-10 h-10 bg-violet-900/30 rounded-lg flex items-center justify-center mb-3 text-violet-400 group-hover:text-violet-300 group-hover:scale-110 transition-all">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1">
-                    Online Assessment
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Create a multi-section timed MCQ assessment.
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                to={`/groups/${id}/create-coding-round`}
-                className="group relative overflow-hidden bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-primary-500/50 rounded-xl p-5 transition-all duration-300 text-left"
-              >
-                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <svg
-                    className="w-24 h-24 text-primary-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                    />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="w-10 h-10 bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 text-primary-400 group-hover:text-primary-300 group-hover:scale-110 transition-all">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1">
-                    Coding Round
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Create a coding challenge with custom or
-                    AI-generated questions.
-                  </p>
-                </div>
-              </Link>
+            <div className="flex-1 min-w-0">
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#7fff6e] transition-colors">Quiz</div>
+              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Multiple-choice quiz on any topic</div>
             </div>
-          </div>
+            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#7fff6e] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          {/* Online Assessment */}
+          <Link
+            to={`/groups/${id}/create-oa`}
+            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#9b6dff]/30 rounded-xl transition-all duration-200"
+            onClick={() => setShowCreateModal(false)}
+          >
+            <div className="w-10 h-10 rounded-lg bg-[#9b6dff]/10 flex items-center justify-center shrink-0 group-hover:bg-[#9b6dff]/20 transition-colors">
+              <svg className="w-5 h-5 text-[#9b6dff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#9b6dff] transition-colors">Online Assessment</div>
+              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Multi-section timed MCQ assessment</div>
+            </div>
+            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#9b6dff] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          {/* Coding Round */}
+          <Link
+            to={`/groups/${id}/create-coding-round`}
+            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#ffcc44]/30 rounded-xl transition-all duration-200"
+            onClick={() => setShowCreateModal(false)}
+          >
+            <div className="w-10 h-10 rounded-lg bg-[#ffcc44]/10 flex items-center justify-center shrink-0 group-hover:bg-[#ffcc44]/20 transition-colors">
+              <svg className="w-5 h-5 text-[#ffcc44]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#ffcc44] transition-colors">Coding Round</div>
+              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Custom or AI-generated coding challenge</div>
+            </div>
+            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#ffcc44] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
-      )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {deleteModal.show && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() =>
-            setDeleteModal({
-              show: false,
-              type: null,
-              id: null,
-              title: "",
-            })
-          }
-        >
-          <div
-            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl transform transition-all scale-100"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center mb-4 text-red-500">
-              <div className="p-3 bg-red-500/10 rounded-full mr-4">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-white">
-                Delete{" "}
-                {deleteModal.type === "quiz"
-                  ? "Quiz"
-                  : "Coding Round"}
-              </h3>
-            </div>
-
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to delete{" "}
-              <span className="font-semibold text-white">
-                "{deleteModal.title}"
-              </span>
-              ? This action cannot be undone and all associated
-              attempts will be permanently removed.
-            </p>
-
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  setDeleteModal({
-                    show: false,
-                    type: null,
-                    id: null,
-                    title: "",
-                  })
-                }
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white border-none"
-                onClick={confirmDelete}
-              >
-                Delete
-              </Button>
-            </div>
+      <Modal
+        isOpen={deleteModal.show}
+        onClose={() => setDeleteModal({ show: false, type: null, id: null, title: "" })}
+        title={`Delete ${deleteModal.type === "quiz" ? "Quiz" : deleteModal.type === "online-assessment" ? "Assessment" : "Coding Round"}`}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ show: false, type: null, id: null, title: "" })}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        {/* Danger icon */}
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-11 h-11 rounded-full bg-[#ff5555]/10 border border-[#ff5555]/20 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-[#ff5555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </div>
+          <p className="text-[13px] text-[#6b6b80] font-mono leading-relaxed">
+            Are you sure you want to delete{" "}
+            <span className="text-[#f0f0f5] font-semibold">"{deleteModal.title}"</span>?
+            {" "}This action cannot be undone and all associated attempts will be permanently removed.
+          </p>
         </div>
-      )}
+        {/* Warning callout */}
+        <div className="px-3.5 py-2.5 bg-[#ff5555]/[0.06] border border-[#ff5555]/[0.14] rounded-lg">
+          <p className="text-[11px] text-[#ff5555] font-mono">⚠ All participant data will be permanently deleted.</p>
+        </div>
+      </Modal>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main content column */}
@@ -1285,6 +1150,7 @@ const GroupDetails = () => {
             </div>
           </Card>
         </div>
+      </div>
       </div>
     </Layout>
   );

@@ -67,6 +67,9 @@ const TakeOA = () => {
     const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
     const [answers, setAnswers] = useState([]); // answers for the current active section
     const [timeLeft, setTimeLeft] = useState(0);
+
+    // Sync answersRef whenever answers state changes
+    useEffect(() => { answersRef.current = answers; }, [answers]);
     const [submitting, setSubmitting] = useState(false);
 
     // Modals
@@ -79,6 +82,8 @@ const TakeOA = () => {
     const offlineTimerRef = useRef(null);
     const assessmentEndedRef = useRef(false); // prevent double-termination
     const hasStartedRef = useRef(false);
+    // Keep a ref that always mirrors `answers` so stale-closure callbacks (timer) can read the latest value
+    const answersRef = useRef([]);
 
     /* ──────────────────────────────
        Termination (fire-and-forget)
@@ -147,21 +152,23 @@ const TakeOA = () => {
     /* ──────────────────────────────
        Section timer
     ────────────────────────────── */
+    // Ref initialized as null — populated by useEffect after handleSubmitSection is declared below
+    const handleSubmitSectionRef = useRef(null);
+
     useEffect(() => {
         if (view !== 'section') return;
         timerRef.current = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
                     clearInterval(timerRef.current);
-                    // Auto-submit on time expiry
-                    handleSubmitSection(true);
+                    // Auto-submit via ref so we always call the latest closure, never a stale one
+                    handleSubmitSectionRef.current(true);
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timerRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [view, currentSectionIdx]);
 
     /* ──────────────────────────────
@@ -246,17 +253,25 @@ const TakeOA = () => {
         }
     };
 
-    const handleSubmitSection = async (autoSubmit = false) => {
-        if (submitting) return;
-        setSubmitting(true);
+    const handleSubmitSection = useCallback(async (autoSubmit = false) => {
+        if (assessmentEndedRef.current) return;
+        setSubmitting(prev => {
+            if (prev) return prev; // already submitting
+            return true;
+        });
         clearInterval(timerRef.current);
 
+        // Read answers from ref so this works correctly even from a stale-closure context (e.g. timer callback)
+        const currentAnswers = answersRef.current;
+
         try {
-            const currentSection = oa.sections[currentSectionIdx];
-            const timeTaken = currentSection.timeLimit * 60 - timeLeft;
+            const currentSection = oa?.sections[currentSectionIdx];
+            if (!currentSection) return;
+            // timeLeft may be 0 on auto-submit; compute from ref'd answers length to avoid stale value
+            const timeTaken = currentSection.timeLimit * 60 - (autoSubmit ? 0 : timeLeft);
             const { data } = await axios.post(`/api/online-assessments/${id}/submit-section`, {
                 sectionIndex: currentSectionIdx,
-                answers,
+                answers: currentAnswers,
                 timeTaken
             });
 
@@ -266,15 +281,18 @@ const TakeOA = () => {
                 navigate(`/oa/${id}/results`, { replace: true });
             } else {
                 // More sections remain
+                setSubmitting(false);
                 setView('between-sections');
             }
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to submit section');
-            if (!autoSubmit) setSubmitting(false);
-        } finally {
-            if (!assessmentEndedRef.current) setSubmitting(false);
+            setSubmitting(false);
         }
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, oa, currentSectionIdx, timeLeft, navigate]);
+
+    // Keep the ref in sync so the timer interval always calls the latest version
+    useEffect(() => { handleSubmitSectionRef.current = handleSubmitSection; }, [handleSubmitSection]);
 
     const startNextSection = () => {
         const nextIdx = currentSectionIdx + 1;

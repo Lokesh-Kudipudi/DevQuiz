@@ -1,53 +1,93 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import {
+  NAVBAR_STYLES,
+  NAVBAR_LOGO_MARK_STYLES,
+  NAVBAR_LOGO_TEXT_STYLES,
+  NAVBAR_USER_CHIP_STYLES,
+} from '../constants/ui';
+
+/* Sun icon */
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+);
+
+/* Moon icon */
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+);
 
 const Navbar = () => {
-    const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
-    return (
-        <nav className="sticky top-0 z-50 bg-gray-950/70 backdrop-blur-xl border-b border-gray-800/50">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                    <Link to="/dashboard" className="flex items-center space-x-2 group">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary-500/20 group-hover:shadow-primary-500/40 transition-all duration-300">
-                            D
-                        </div>
-                        <span className="text-xl font-display font-bold text-white tracking-tight group-hover:text-primary-400 transition-colors">DevQuiz</span>
-                    </Link>
-                    
-                    <div className="flex items-center space-x-6">
-                        {user ? (
-                            <>
-                                <div className="hidden md:flex items-center space-x-3 bg-gray-800/50 rounded-full pl-1 pr-4 py-1 border border-gray-700/50">
-                                    {user.avatar ? (
-                                        <img 
-                                            src={user.avatar} 
-                                            alt={user.name} 
-                                            referrerPolicy="no-referrer"
-                                            className="w-8 h-8 rounded-full border border-gray-600"
-                                        />
-                                    ) : (
-                                        <div className="w-8 h-8 rounded-full bg-primary-900/50 text-primary-300 flex items-center justify-center text-xs font-bold border border-primary-500/30">
-                                            {user.name?.charAt(0)}
-                                        </div>
-                                    )}
-                                    <span className="text-sm font-medium text-gray-300">{user.name}</span>
-                                </div>
-                                <button 
-                                    onClick={logout}
-                                    className="text-gray-400 hover:text-white transition-colors text-sm font-medium hover:underline decoration-primary-500 decoration-2 underline-offset-4"
-                                >
-                                    Logout
-                                </button>
-                            </>
-                        ) : (
-                            <Link to="/" className="text-gray-300 hover:text-white font-medium transition-colors">Login</Link>
-                        )}
-                    </div>
+  return (
+    <nav className={NAVBAR_STYLES}>
+      {/* Logo */}
+      <Link to="/dashboard" className="flex items-center gap-2.5 no-underline">
+        <div className={NAVBAR_LOGO_MARK_STYLES}>D</div>
+        <span className={NAVBAR_LOGO_TEXT_STYLES}>DevQuiz</span>
+      </Link>
+
+      {/* Right side */}
+      <div className="flex items-center gap-3">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-lg border border-white/[0.07] text-[#6b6b80] hover:border-white/[0.14] hover:text-[#f0f0f5] transition-all cursor-pointer bg-transparent"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </button>
+
+        {user ? (
+          <>
+            {/* User chip */}
+            <div className={NAVBAR_USER_CHIP_STYLES}>
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  referrerPolicy="no-referrer"
+                  className="w-6 h-6 rounded-full flex-shrink-0"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-[#9b6dff] flex items-center justify-center text-[10px] font-semibold text-white flex-shrink-0">
+                  {user.name?.charAt(0)?.toUpperCase()}
                 </div>
+              )}
+              <span>{user.name}</span>
             </div>
-        </nav>
-    );
+
+            {/* Logout */}
+            <button
+              onClick={logout}
+              className="bg-transparent border border-white/[0.07] rounded-lg px-4 py-1.5 text-[#6b6b80] text-xs font-mono hover:border-white/[0.14] hover:text-[#f0f0f5] transition-all cursor-pointer"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link to="/" className="text-[#6b6b80] hover:text-[#f0f0f5] text-xs font-mono transition-colors">
+            Login
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
 };
 
 export default Navbar;

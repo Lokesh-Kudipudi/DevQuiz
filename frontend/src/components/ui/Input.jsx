@@ -11,11 +11,7 @@ const Input = forwardRef(({ label, error, className = '', ...props }, ref) => {
       )}
       <input
         ref={ref}
-        className={`
-          ${INPUT_BASE_STYLES}
-          ${error ? INPUT_ERROR_STYLES : ''}
-          ${className}
-        `}
+        className={`${INPUT_BASE_STYLES} ${error ? INPUT_ERROR_STYLES : ''} ${className}`}
         {...props}
       />
       {error && (
