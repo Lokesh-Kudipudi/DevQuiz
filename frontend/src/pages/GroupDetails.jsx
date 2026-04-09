@@ -134,7 +134,7 @@ const GroupDetails = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7fff6e]"></div>
         </div>
       </Layout>
     );
@@ -163,7 +163,7 @@ const GroupDetails = () => {
           </p>
           <Link
             to="/dashboard"
-            className="mt-4 inline-block text-gray-400 hover:text-white underline"
+            className="mt-4 inline-block text-[var(--color-muted)] hover:text-[var(--color-text-base)] underline"
           >
             Return to Dashboard
           </Link>
@@ -174,7 +174,7 @@ const GroupDetails = () => {
   if (!group)
     return (
       <Layout>
-        <div className="text-center mt-20 text-gray-400">
+        <div className="text-center mt-20 text-[var(--color-muted)]">
           Group not found
         </div>
       </Layout>
@@ -186,7 +186,7 @@ const GroupDetails = () => {
         <div className="flex justify-between items-center mb-6">
         <Link
           to="/dashboard"
-          className="text-gray-400 hover:text-primary-400 inline-flex items-center transition-colors"
+          className="text-[var(--color-muted)] hover:text-[#7fff6e] inline-flex items-center transition-colors"
         >
           <svg
             className="w-4 h-4 mr-2"
@@ -210,7 +210,7 @@ const GroupDetails = () => {
               setTempKey(apiKey);
               setShowApiKeyModal(true);
             }}
-            className="flex items-center gap-2 border border-gray-700 bg-gray-800 hover:bg-gray-700"
+            className="flex items-center gap-2 border border-[var(--color-text-base)]/[0.07] bg-[var(--color-surface2)] hover:bg-[var(--color-surface2)]"
             title={
               apiKey
                 ? "API Key Configured"
@@ -218,7 +218,7 @@ const GroupDetails = () => {
             }
           >
             <svg
-              className={`w-4 h-4 ${apiKey ? "text-green-400" : "text-gray-400"}`}
+              className={`w-4 h-4 ${apiKey ? "text-green-400" : "text-[var(--color-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -273,12 +273,12 @@ const GroupDetails = () => {
           onClick={() => setShowApiKeyModal(false)}
         >
           <div
-            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            className="bg-[var(--color-surface)] border border-[var(--color-text-base)]/[0.07] rounded-2xl p-6 w-full max-w-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-[var(--color-text-base)] mb-4 flex items-center gap-2">
               <svg
-                className="w-6 h-6 text-primary-500"
+                className="w-6 h-6 text-[#7fff6e]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -292,14 +292,14 @@ const GroupDetails = () => {
               </svg>
               Configure Gemini API Key
             </h3>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-[var(--color-muted)] text-sm mb-4">
               To prevent quota exhaustion, you can provide your
               own Gemini API Key. It will be stored locally in
               your browser and used for generating content.
             </p>
 
             <div className="mb-4">
-              <label className="block text-gray-400 text-xs uppercase font-bold mb-2">
+              <label className="block text-[var(--color-muted)] text-xs uppercase font-bold mb-2">
                 API Key
               </label>
               <input
@@ -307,14 +307,14 @@ const GroupDetails = () => {
                 value={tempKey}
                 onChange={(e) => setTempKey(e.target.value)}
                 placeholder="Enter your Gemini API Key"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
+                className="w-full bg-[var(--color-surface2)] border border-[var(--color-text-base)]/[0.07] rounded-lg p-3 text-[var(--color-text-base)] focus:outline-none focus:border-[#7fff6e] transition-colors"
               />
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-[var(--color-muted)] mt-2">
                 <a
                   href="https://aistudio.google.com/app/apikey"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-400 hover:underline"
+                  className="text-[#7fff6e] hover:underline"
                 >
                   Get a key from Google AI Studio
                 </a>
@@ -354,7 +354,7 @@ const GroupDetails = () => {
           {/* Quiz */}
           <Link
             to={`/groups/${id}/create-quiz`}
-            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#7fff6e]/30 rounded-xl transition-all duration-200"
+            className="group flex items-center gap-4 p-4 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] hover:border-[#7fff6e]/30 rounded-xl transition-all duration-200"
             onClick={() => setShowCreateModal(false)}
           >
             <div className="w-10 h-10 rounded-lg bg-[#7fff6e]/10 flex items-center justify-center shrink-0 group-hover:bg-[#7fff6e]/20 transition-colors">
@@ -363,10 +363,10 @@ const GroupDetails = () => {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#7fff6e] transition-colors">Quiz</div>
-              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Multiple-choice quiz on any topic</div>
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors">Quiz</div>
+              <div className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">Multiple-choice quiz on any topic</div>
             </div>
-            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#7fff6e] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[var(--color-muted)] group-hover:text-[#7fff6e] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
@@ -374,7 +374,7 @@ const GroupDetails = () => {
           {/* Online Assessment */}
           <Link
             to={`/groups/${id}/create-oa`}
-            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#9b6dff]/30 rounded-xl transition-all duration-200"
+            className="group flex items-center gap-4 p-4 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] hover:border-[#9b6dff]/30 rounded-xl transition-all duration-200"
             onClick={() => setShowCreateModal(false)}
           >
             <div className="w-10 h-10 rounded-lg bg-[#9b6dff]/10 flex items-center justify-center shrink-0 group-hover:bg-[#9b6dff]/20 transition-colors">
@@ -383,10 +383,10 @@ const GroupDetails = () => {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#9b6dff] transition-colors">Online Assessment</div>
-              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Multi-section timed MCQ assessment</div>
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[var(--color-text-base)] group-hover:text-[#9b6dff] transition-colors">Online Assessment</div>
+              <div className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">Multi-section timed MCQ assessment</div>
             </div>
-            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#9b6dff] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[var(--color-muted)] group-hover:text-[#9b6dff] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
@@ -394,7 +394,7 @@ const GroupDetails = () => {
           {/* Coding Round */}
           <Link
             to={`/groups/${id}/create-coding-round`}
-            className="group flex items-center gap-4 p-4 bg-[#0a0a0f] border border-white/[0.07] hover:border-[#ffcc44]/30 rounded-xl transition-all duration-200"
+            className="group flex items-center gap-4 p-4 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] hover:border-[#ffcc44]/30 rounded-xl transition-all duration-200"
             onClick={() => setShowCreateModal(false)}
           >
             <div className="w-10 h-10 rounded-lg bg-[#ffcc44]/10 flex items-center justify-center shrink-0 group-hover:bg-[#ffcc44]/20 transition-colors">
@@ -403,10 +403,10 @@ const GroupDetails = () => {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-['Syne',sans-serif] font-bold text-sm text-[#f0f0f5] group-hover:text-[#ffcc44] transition-colors">Coding Round</div>
-              <div className="text-[11px] text-[#6b6b80] font-mono mt-0.5">Custom or AI-generated coding challenge</div>
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[var(--color-text-base)] group-hover:text-[#ffcc44] transition-colors">Coding Round</div>
+              <div className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">Custom or AI-generated coding challenge</div>
             </div>
-            <svg className="w-4 h-4 text-[#6b6b80] group-hover:text-[#ffcc44] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[var(--color-muted)] group-hover:text-[#ffcc44] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
@@ -439,9 +439,9 @@ const GroupDetails = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <p className="text-[13px] text-[#6b6b80] font-mono leading-relaxed">
+          <p className="text-[13px] text-[var(--color-muted)] font-mono leading-relaxed">
             Are you sure you want to delete{" "}
-            <span className="text-[#f0f0f5] font-semibold">"{deleteModal.title}"</span>?
+            <span className="text-[var(--color-text-base)] font-semibold">"{deleteModal.title}"</span>?
             {" "}This action cannot be undone and all associated attempts will be permanently removed.
           </p>
         </div>
@@ -456,9 +456,9 @@ const GroupDetails = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Quizzes Section */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-white flex items-center">
+            <h2 className="text-2xl font-semibold text-[var(--color-text-base)] flex items-center">
               <svg
-                className="w-6 h-6 mr-2 text-primary-500"
+                className="w-6 h-6 mr-2 text-[#7fff6e]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -479,14 +479,14 @@ const GroupDetails = () => {
               {group.quizzes.map((quiz) => (
                 <Card
                   key={quiz._id}
-                  className="group hover:border-primary-500/30 transition-all duration-300"
+                  className="group hover:border-[#7fff6e]/30 transition-all duration-300"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="font-bold text-xl text-white group-hover:text-primary-400 transition-colors mb-1">
+                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors mb-1">
                         {quiz.title}
                       </h3>
-                      <div className="flex items-center space-x-4 text-sm text-gray-400">
+                      <div className="flex items-center space-x-4 text-sm text-[var(--color-muted)]">
                         <span className="flex items-center">
                           <span
                             className={`w-2 h-2 rounded-full mr-2 ${
@@ -560,7 +560,7 @@ const GroupDetails = () => {
                             quiz.title,
                           );
                         }}
-                        className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
+                        className="text-[var(--color-muted)] hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
                         title="Delete Quiz"
                       >
                         <svg
@@ -583,8 +583,8 @@ const GroupDetails = () => {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-12 border-dashed border-gray-800 mb-8">
-              <p className="text-gray-400 mb-4">
+            <Card className="text-center py-12 border-dashed border-[var(--color-text-base)]/[0.07] mb-8">
+              <p className="text-[var(--color-muted)] mb-4">
                 No quizzes created yet.
               </p>
               <Button
@@ -599,9 +599,9 @@ const GroupDetails = () => {
 
           {/* Online Assessments Section */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-white flex items-center">
+            <h2 className="text-2xl font-semibold text-[var(--color-text-base)] flex items-center">
               <svg
-                className="w-6 h-6 mr-2 text-violet-500"
+                className="w-6 h-6 mr-2 text-[#9b6dff]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -630,14 +630,14 @@ const GroupDetails = () => {
                 return (
                   <Card
                     key={oa._id}
-                    className="group hover:border-violet-500/30 transition-all duration-300"
+                    className="group hover:border-[#9b6dff]/30 transition-all duration-300"
                   >
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
-                        <h3 className="font-bold text-xl text-white group-hover:text-violet-400 transition-colors mb-1">
+                        <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[#9b6dff] transition-colors mb-1">
                           {oa.title}
                         </h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                        <div className="flex items-center space-x-4 text-sm text-[var(--color-muted)]">
                           <span className="flex items-center">
                             <svg
                               className="w-4 h-4 mr-1"
@@ -699,7 +699,7 @@ const GroupDetails = () => {
                           >
                             <Button
                               size="sm"
-                              className="w-full bg-violet-600 hover:bg-violet-700 border-violet-600"
+                              className="w-full bg-[#9b6dff] hover:bg-[#9b6dff] border-[#9b6dff]"
                             >
                               Start
                             </Button>
@@ -739,7 +739,7 @@ const GroupDetails = () => {
                               oa.title,
                             )
                           }
-                          className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
+                          className="text-[var(--color-muted)] hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
                           title="Delete Assessment"
                         >
                           <svg
@@ -763,8 +763,8 @@ const GroupDetails = () => {
               })}
             </div>
           ) : (
-            <Card className="text-center py-12 border-dashed border-gray-800 mb-8">
-              <p className="text-gray-400 mb-4">
+            <Card className="text-center py-12 border-dashed border-[var(--color-text-base)]/[0.07] mb-8">
+              <p className="text-[var(--color-muted)] mb-4">
                 No online assessments created yet.
               </p>
               <Button
@@ -779,9 +779,9 @@ const GroupDetails = () => {
 
           {/* Coding Rounds Section */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-white flex items-center">
+            <h2 className="text-2xl font-semibold text-[var(--color-text-base)] flex items-center">
               <svg
-                className="w-6 h-6 mr-2 text-primary-500"
+                className="w-6 h-6 mr-2 text-[#7fff6e]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -803,14 +803,14 @@ const GroupDetails = () => {
               {group.codingRounds.map((round) => (
                 <Card
                   key={round._id}
-                  className="group hover:border-primary-500/30 transition-all duration-300 relative"
+                  className="group hover:border-[#7fff6e]/30 transition-all duration-300 relative"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="font-bold text-xl text-white group-hover:text-primary-400 transition-colors mb-1 pr-8">
+                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors mb-1 pr-8">
                         {round.title}
                       </h3>
-                      <div className="flex items-center space-x-4 text-sm text-gray-400">
+                      <div className="flex items-center space-x-4 text-sm text-[var(--color-muted)]">
                         <span className="flex items-center">
                           <svg
                             className="w-4 h-4 mr-1"
@@ -870,7 +870,7 @@ const GroupDetails = () => {
                             round.title,
                           );
                         }}
-                        className="text-gray-500 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
+                        className="text-[var(--color-muted)] hover:text-red-500 transition-colors p-2 rounded hover:bg-red-500/10"
                         title="Delete Round"
                       >
                         <svg
@@ -893,8 +893,8 @@ const GroupDetails = () => {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-12 border-dashed border-gray-800 mb-8">
-              <p className="text-gray-400 mb-4">
+            <Card className="text-center py-12 border-dashed border-[var(--color-text-base)]/[0.07] mb-8">
+              <p className="text-[var(--color-muted)] mb-4">
                 No coding rounds created yet.
               </p>
               <Button
@@ -911,14 +911,14 @@ const GroupDetails = () => {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Group Details Card */}
-          <Card className="border-primary-500/20 bg-linear-to-b from-gray-800 to-gray-900/50">
+          <Card className="border-[#7fff6e]/20 bg-linear-to-b from-[var(--color-surface2)] to-[var(--color-surface)]">
             <button
               onClick={() => toggleCollapse("groupDetails")}
               className="w-full flex items-center justify-between text-left group"
             >
-              <h2 className="text-lg font-semibold text-white flex items-center">
+              <h2 className="text-lg font-semibold text-[var(--color-text-base)] flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-primary-500"
+                  className="w-5 h-5 mr-2 text-[#7fff6e]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -933,7 +933,7 @@ const GroupDetails = () => {
                 Group Details
               </h2>
               <svg
-                className={`w-5 h-5 text-gray-400 group-hover:text-white transition-transform duration-200 ${collapsed.groupDetails ? "-rotate-90" : ""}`}
+                className={`w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-text-base)] transition-transform duration-200 ${collapsed.groupDetails ? "-rotate-90" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -950,17 +950,17 @@ const GroupDetails = () => {
             {!collapsed.groupDetails && (
               <div className="mt-4 space-y-4">
                 <div>
-                  <h3 className="text-2xl font-bold text-white">
+                  <h3 className="text-2xl font-bold text-[var(--color-text-base)]">
                     {group.name}
                   </h3>
-                  <p className="text-gray-400 text-sm mt-1">
+                  <p className="text-[var(--color-muted)] text-sm mt-1">
                     {group.description}
                   </p>
                 </div>
-                <div className="space-y-2 text-sm text-gray-400">
+                <div className="space-y-2 text-sm text-[var(--color-muted)]">
                   <div className="flex items-center">
                     <svg
-                      className="w-4 h-4 mr-2 text-gray-500"
+                      className="w-4 h-4 mr-2 text-[var(--color-muted)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -974,14 +974,14 @@ const GroupDetails = () => {
                     </svg>
                     <span>
                       Created by{" "}
-                      <span className="text-primary-300 font-medium">
+                      <span className="text-[var(--color-text-base)] font-medium">
                         {group.creator?.name}
                       </span>
                     </span>
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-4 h-4 mr-2 text-gray-500"
+                      className="w-4 h-4 mr-2 text-[var(--color-muted)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -1000,16 +1000,16 @@ const GroupDetails = () => {
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-950/50 border border-gray-700/50 rounded-xl p-3 text-center">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                <div className="bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] rounded-xl p-3 text-center">
+                  <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider mb-1">
                     Invite Code
                   </p>
                   <div className="flex items-center justify-center space-x-2">
-                    <p className="text-xl font-mono font-bold text-primary-400 tracking-widest">
+                    <p className="text-xl font-mono font-bold text-[#7fff6e] tracking-widest">
                       {group.inviteCode}
                     </p>
                     <button
-                      className="text-gray-500 hover:text-white transition-colors"
+                      className="text-[var(--color-muted)] hover:text-[var(--color-text-base)] transition-colors"
                       title="Copy code"
                       onClick={() => {
                         navigator.clipboard.writeText(
@@ -1044,9 +1044,9 @@ const GroupDetails = () => {
               onClick={() => toggleCollapse("members")}
               className="w-full flex items-center justify-between text-left group"
             >
-              <h2 className="text-lg font-semibold text-white flex items-center">
+              <h2 className="text-lg font-semibold text-[var(--color-text-base)] flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-primary-500"
+                  className="w-5 h-5 mr-2 text-[#7fff6e]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1059,12 +1059,12 @@ const GroupDetails = () => {
                   />
                 </svg>
                 Members
-                <span className="ml-2 text-sm text-gray-500 font-normal">
+                <span className="ml-2 text-sm text-[var(--color-muted)] font-normal">
                   ({group.members.length})
                 </span>
               </h2>
               <svg
-                className={`w-5 h-5 text-gray-400 group-hover:text-white transition-transform duration-200 ${collapsed.members ? "-rotate-90" : ""}`}
+                className={`w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-text-base)] transition-transform duration-200 ${collapsed.members ? "-rotate-90" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -1083,21 +1083,21 @@ const GroupDetails = () => {
                 {group.members.map((member) => (
                   <div
                     key={member._id}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-[var(--color-surface2)]/50 transition-colors"
                   >
                     {member.avatar ? (
                       <img
                         src={member.avatar}
                         alt={member.name}
                         referrerPolicy="no-referrer"
-                        className="w-9 h-9 rounded-full border-2 border-gray-700"
+                        className="w-9 h-9 rounded-full border-2 border-[var(--color-text-base)]/[0.07]"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-primary-900/50 text-primary-300 flex items-center justify-center font-bold border-2 border-gray-700 text-sm">
+                      <div className="w-9 h-9 rounded-full bg-[#7fff6e]/10 text-[#7fff6e] flex items-center justify-center font-bold border-2 border-[var(--color-text-base)]/[0.07] text-sm">
                         {member.name?.charAt(0)}
                       </div>
                     )}
-                    <span className="font-medium text-gray-200 text-sm">
+                    <span className="font-medium text-[var(--color-text-base)] text-sm">
                       {member.name}
                     </span>
                   </div>
@@ -1112,7 +1112,7 @@ const GroupDetails = () => {
               onClick={() => toggleCollapse("leaderboard")}
               className="w-full flex items-center justify-between text-left group"
             >
-              <h2 className="text-lg font-semibold text-white flex items-center">
+              <h2 className="text-lg font-semibold text-[var(--color-text-base)] flex items-center">
                 <svg
                   className="w-5 h-5 mr-2 text-yellow-500"
                   fill="none"
@@ -1129,7 +1129,7 @@ const GroupDetails = () => {
                 Leaderboard
               </h2>
               <svg
-                className={`w-5 h-5 text-gray-400 group-hover:text-white transition-transform duration-200 ${collapsed.leaderboard ? "-rotate-90" : ""}`}
+                className={`w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-text-base)] transition-transform duration-200 ${collapsed.leaderboard ? "-rotate-90" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

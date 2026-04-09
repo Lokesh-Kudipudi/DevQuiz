@@ -26,6 +26,26 @@ export const AuthProvider = ({ children }) => {
         window.location.href = `${baseURL}/auth/google`;
     };
 
+    const loginWithEmail = async (email, password) => {
+        try {
+            const { data } = await axios.post('/auth/login', { email, password });
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const registerWithEmail = async (name, email, password) => {
+        try {
+            const { data } = await axios.post('/auth/register', { name, email, password });
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             await axios.get('/auth/logout');
@@ -36,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, loginWithEmail, registerWithEmail, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -36,10 +36,10 @@ const Dashboard = () => {
                 {/* Page header — spans full width */}
                 <div className="flex items-end justify-between mb-10">
                     <div>
-                        <h1 className="font-['Syne',sans-serif] font-extrabold text-5xl tracking-[-2px] leading-none text-[#f0f0f5]">
+                        <h1 className="font-['Syne',sans-serif] font-extrabold text-5xl tracking-[-2px] leading-none text-[var(--color-text-base)]">
                             Dashboard
                         </h1>
-                        <p className="text-[#6b6b80] text-xs mt-2 tracking-wide font-mono">
+                        <p className="text-[var(--color-muted)] text-xs mt-2 tracking-wide font-mono">
                             Welcome back, {user?.name}. Ready for a challenge?
                         </p>
                     </div>

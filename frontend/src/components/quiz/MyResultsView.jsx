@@ -20,10 +20,10 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
 
     if (!attempt) {
         return (
-            <div className="py-12 px-6 text-center bg-[#111118] border border-dashed border-white/[0.07] rounded-[12px]">
+            <div className="py-12 px-6 text-center bg-[var(--color-surface)] border border-dashed border-[var(--color-text-base)]/[0.07] rounded-[12px]">
                 <div className="text-3xl mb-3 opacity-40">📝</div>
-                <p className="font-['Syne',sans-serif] font-semibold text-[#f0f0f5] text-sm mb-2">You haven't taken this quiz yet</p>
-                <p className="text-xs text-[#6b6b80] font-mono mb-5">Test your knowledge and see where you rank!</p>
+                <p className="font-['Syne',sans-serif] font-semibold text-[var(--color-text-base)] text-sm mb-2">You haven't taken this quiz yet</p>
+                <p className="text-xs text-[var(--color-muted)] font-mono mb-5">Test your knowledge and see where you rank!</p>
                 <Link to={`/quiz/${quizId}`}>
                     <Button variant="primary">Start Quiz Now</Button>
                 </Link>
@@ -40,13 +40,13 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
             <div className={PERF_CARD_STYLES}>
                 {/* Left */}
                 <div>
-                    <h2 className="font-['Syne',sans-serif] font-bold text-lg text-[#f0f0f5] mb-1">
+                    <h2 className="font-['Syne',sans-serif] font-bold text-lg text-[var(--color-text-base)] mb-1">
                         Your Performance
                     </h2>
-                    <p className="text-[11px] text-[#6b6b80] font-mono mb-3">
+                    <p className="text-[11px] text-[var(--color-muted)] font-mono mb-3">
                         Here's how you did on this quiz
                     </p>
-                    <span className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 bg-[#1a1a24] border border-white/[0.07] rounded-full text-[#6b6b80] font-mono">
+                    <span className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 bg-[var(--color-surface2)] border border-[var(--color-text-base)]/[0.07] rounded-full text-[var(--color-muted)] font-mono">
                         🗓 Attempted on {new Date(attempt.attemptedAt || Date.now()).toLocaleDateString()}
                     </span>
                 </div>
@@ -69,7 +69,7 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
             </div>
 
             {/* Question review */}
-            <h3 className="font-['Syne',sans-serif] font-bold text-base text-[#f0f0f5] flex items-center gap-2 mb-4 mt-8">
+            <h3 className="font-['Syne',sans-serif] font-bold text-base text-[var(--color-text-base)] flex items-center gap-2 mb-4 mt-8">
                 <svg className="w-4 h-4 text-[#7fff6e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -92,7 +92,7 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
                             {/* Header */}
                             <div className="flex items-start gap-3 mb-4">
                                 <div className={badgeClass}>{qIdx + 1}</div>
-                                <div className="text-[13px] text-[#f0f0f5] leading-relaxed font-mono flex-1">
+                                <div className="text-[13px] text-[var(--color-text-base)] leading-relaxed font-mono flex-1">
                                     <QuestionDisplay content={q.question} />
                                 </div>
                             </div>

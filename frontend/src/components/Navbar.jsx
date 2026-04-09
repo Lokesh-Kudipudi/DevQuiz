@@ -47,7 +47,7 @@ const Navbar = () => {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg border border-white/[0.07] text-[#6b6b80] hover:border-white/[0.14] hover:text-[#f0f0f5] transition-all cursor-pointer bg-transparent"
+          className="p-2 rounded-lg border border-[var(--color-text-base)]/[0.07] text-[var(--color-muted)] hover:border-[var(--color-text-base)]/[0.14] hover:text-[var(--color-text-base)] transition-all cursor-pointer bg-transparent"
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
@@ -75,13 +75,13 @@ const Navbar = () => {
             {/* Logout */}
             <button
               onClick={logout}
-              className="bg-transparent border border-white/[0.07] rounded-lg px-4 py-1.5 text-[#6b6b80] text-xs font-mono hover:border-white/[0.14] hover:text-[#f0f0f5] transition-all cursor-pointer"
+              className="bg-transparent border border-[var(--color-text-base)]/[0.07] rounded-lg px-4 py-1.5 text-[var(--color-muted)] text-xs font-mono hover:border-[var(--color-text-base)]/[0.14] hover:text-[var(--color-text-base)] transition-all cursor-pointer"
             >
               Logout
             </button>
           </>
         ) : (
-          <Link to="/" className="text-[#6b6b80] hover:text-[#f0f0f5] text-xs font-mono transition-colors">
+          <Link to="/" className="text-[var(--color-muted)] hover:text-[var(--color-text-base)] text-xs font-mono transition-colors">
             Login
           </Link>
         )}

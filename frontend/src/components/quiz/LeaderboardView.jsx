@@ -11,10 +11,10 @@ const LeaderboardView = ({ results }) => {
 
     if (results.length === 0) {
         return (
-            <div className="py-12 px-6 text-center bg-[#111118] border border-dashed border-white/[0.07] rounded-[12px]">
+            <div className="py-12 px-6 text-center bg-[var(--color-surface)] border border-dashed border-[var(--color-text-base)]/[0.07] rounded-[12px]">
                 <div className="text-3xl mb-3 opacity-40">🏆</div>
-                <p className="font-['Syne',sans-serif] font-semibold text-[#f0f0f5] text-sm mb-2">No attempts yet</p>
-                <p className="text-xs text-[#6b6b80] font-mono">Be the first to take this quiz!</p>
+                <p className="font-['Syne',sans-serif] font-semibold text-[var(--color-text-base)] text-sm mb-2">No attempts yet</p>
+                <p className="text-xs text-[var(--color-muted)] font-mono">Be the first to take this quiz!</p>
             </div>
         );
     }
@@ -57,7 +57,7 @@ const LeaderboardView = ({ results }) => {
                                     {result.user?.name?.charAt(0)?.toUpperCase()}
                                 </div>
                             )}
-                            <span className="text-xs font-mono text-[#f0f0f5]">
+                            <span className="text-xs font-mono text-[var(--color-text-base)]">
                                 {result.user?.name || 'Unknown'}
                                 {isMe && <span className="ml-1.5 text-[10px] text-[#7fff6e]">(you)</span>}
                             </span>
@@ -68,11 +68,11 @@ const LeaderboardView = ({ results }) => {
                             <span className="font-['Syne',sans-serif] font-bold text-base text-[#ffcc44]">
                                 {result.score}
                             </span>
-                            <span className="text-[10px] text-[#6b6b80] font-mono ml-1">pts</span>
+                            <span className="text-[10px] text-[var(--color-muted)] font-mono ml-1">pts</span>
                         </div>
 
                         {/* Date */}
-                        <div className="text-right text-[11px] text-[#6b6b80] font-mono">
+                        <div className="text-right text-[11px] text-[var(--color-muted)] font-mono">
                             {new Date(result.attemptedAt).toLocaleDateString()}
                         </div>
                     </div>

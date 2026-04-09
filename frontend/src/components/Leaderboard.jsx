@@ -41,14 +41,14 @@ const Leaderboard = ({ groupId }) => {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-6">
-                <div className="w-5 h-5 border-2 border-white/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[var(--color-text-base)]/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
             </div>
         );
     }
 
     if (leaderboard.length === 0) {
         return (
-            <p className="text-[11px] text-[#6b6b80] font-mono text-center py-4">
+            <p className="text-[11px] text-[var(--color-muted)] font-mono text-center py-4">
                 No quiz attempts yet.
             </p>
         );
@@ -63,8 +63,8 @@ const Leaderboard = ({ groupId }) => {
                 const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
                 const score = person.groupScore || 0;
                 const rowBg = rank === 1
-                    ? 'bg-[#211d10] border border-[#ffcc44]/10'
-                    : 'bg-[#1a1a24] border border-white/[0.05]';
+                    ? 'bg-[#ffcc44]/[0.08] border border-[#ffcc44]/20'
+                    : 'bg-[var(--color-surface2)] border border-[var(--color-text-base)]/[0.05]';
 
                 return (
                     <div
@@ -94,7 +94,7 @@ const Leaderboard = ({ groupId }) => {
                         )}
 
                         {/* Name */}
-                        <span className="flex-1 font-mono text-[13px] text-[#f0f0f5] truncate">
+                        <span className="flex-1 font-mono text-[13px] text-[var(--color-text-base)] truncate">
                             {name}
                         </span>
 
@@ -104,7 +104,7 @@ const Leaderboard = ({ groupId }) => {
                                 {score}
                             </span>
                         ) : (
-                            <svg className="w-5 h-5 text-[#6b6b80] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5 text-[var(--color-muted)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" strokeWidth={2} />
                             </svg>
                         )}

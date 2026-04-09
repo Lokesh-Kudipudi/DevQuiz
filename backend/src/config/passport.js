@@ -15,11 +15,26 @@ async (accessToken, refreshToken, profile, done) => {
             return done(null, user);
         }
 
+        // Check if a local account already exists with this email
+        const email = profile.emails[0].value;
+        user = await User.findOne({ email });
+
+        if (user) {
+            // Link Google to existing local account
+            user.googleId = profile.id;
+            user.avatar = user.avatar || profile.photos[0].value;
+            user.authProvider = 'google';
+            await user.save();
+            return done(null, user);
+        }
+
+        // Create brand new user
         user = await User.create({
             googleId: profile.id,
-            email: profile.emails[0].value,
+            email,
             name: profile.displayName,
-            avatar: profile.photos[0].value
+            avatar: profile.photos[0].value,
+            authProvider: 'google'
         });
 
         return done(null, user);

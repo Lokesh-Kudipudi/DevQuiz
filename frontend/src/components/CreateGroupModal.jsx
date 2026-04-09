@@ -60,7 +60,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                     />
                 </div>
                 <div>
-                    <label className={INPUT_LABEL_STYLES}>Description <span className="text-[#6b6b80]/60 normal-case tracking-normal">(optional)</span></label>
+                    <label className={INPUT_LABEL_STYLES}>Description <span className="text-[var(--color-muted)]/60 normal-case tracking-normal">(optional)</span></label>
                     <textarea
                         className={`${INPUT_BASE_STYLES} resize-none h-20`}
                         value={description}

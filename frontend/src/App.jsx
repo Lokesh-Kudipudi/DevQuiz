@@ -27,8 +27,8 @@ function App() {
             position="top-center"
             toastOptions={{
               style: {
-                background: '#111118',
-                color: '#f0f0f5',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text-base)',
                 border: '1px solid rgba(255,255,255,0.07)',
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '12px',

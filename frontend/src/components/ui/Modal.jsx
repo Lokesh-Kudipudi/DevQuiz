@@ -42,7 +42,7 @@ const Modal = ({ isOpen, onClose, title, subtitle, children, footer, className =
                     </div>
                     <button 
                         onClick={onClose}
-                        className="text-[#6b6b80] hover:text-[#f0f0f5] transition-colors ml-4 mt-0.5 cursor-pointer bg-transparent border-0"
+                        className="text-[var(--color-muted)] hover:text-[var(--color-text-base)] transition-colors ml-4 mt-0.5 cursor-pointer bg-transparent border-0"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

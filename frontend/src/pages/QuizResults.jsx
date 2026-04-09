@@ -38,7 +38,7 @@ const QuizResults = () => {
     if (loading) return (
         <Layout>
             <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="w-8 h-8 border-2 border-white/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-[var(--color-text-base)]/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
             </div>
         </Layout>
     );
@@ -63,10 +63,10 @@ const QuizResults = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="font-['Syne',sans-serif] font-extrabold text-[42px] tracking-[-2px] text-[#f0f0f5] mb-1">
+                    <h1 className="font-['Syne',sans-serif] font-extrabold text-[42px] tracking-[-2px] text-[var(--color-text-base)] mb-1">
                         Quiz Results
                     </h1>
-                    <p className="text-xs text-[#6b6b80] font-mono">Track performance and progress</p>
+                    <p className="text-xs text-[var(--color-muted)] font-mono">Track performance and progress</p>
                 </div>
 
                 {/* Tab switcher */}

@@ -13,7 +13,7 @@ const GroupList = ({ groups, onJoin, onCreate, onNavigate }) => {
         return (
             <div className={EMPTY_STATE_STYLES}>
                 <div className={EMPTY_STATE_ICON_STYLES}>👥</div>
-                <p className="font-['Syne',sans-serif] font-semibold text-[#f0f0f5] text-sm mb-2">No groups yet</p>
+                <p className="font-['Syne',sans-serif] font-semibold text-[var(--color-text-base)] text-sm mb-2">No groups yet</p>
                 <p className={EMPTY_STATE_TEXT_STYLES}>Join a group to start taking quizzes or create your own to challenge others.</p>
                 <Button onClick={onCreate}>Create your first group</Button>
             </div>
@@ -33,18 +33,18 @@ const GroupList = ({ groups, onJoin, onCreate, onNavigate }) => {
                     <div className={GROUP_CARD_ACCENT_BAR} />
 
                     {/* Name */}
-                    <h3 className="font-['Syne',sans-serif] font-bold text-lg text-[#f0f0f5] mb-1.5">
+                    <h3 className="font-['Syne',sans-serif] font-bold text-lg text-[var(--color-text-base)] mb-1.5">
                         {group.name}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-[#6b6b80] text-[11px] mb-5 min-h-[16px] line-clamp-2">
+                    <p className="text-[var(--color-muted)] text-[11px] mb-5 min-h-[16px] line-clamp-2">
                         {group.description || 'No description'}
                     </p>
 
                     {/* Footer row */}
                     <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#6b6b80] flex items-center gap-1">
+                        <span className="text-[11px] text-[var(--color-muted)] flex items-center gap-1">
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
