@@ -2,7 +2,7 @@
  * UI Constants — DevQuiz Design System
  * Central source of truth for component styles and variants.
  * Font: Syne (headings) + JetBrains Mono (body/labels)
- * Palette: var(--color-bg) bg · #7fff6e accent · #ffcc44 amber · #9b6dff purple
+ * Palette: var(--color-bg) bg · var(--color-accent) accent · #ffcc44 amber · #9b6dff purple
  */
 
 // ─────────────────────────────────────────────
@@ -11,9 +11,9 @@
 
 export const BUTTON_VARIANTS = {
   primary:
-    "bg-[#7fff6e] text-[#0a0a0f] font-medium border-0 " +
+    "bg-[var(--color-accent)] text-[#0a0a0f] font-medium border-0 " +
     "hover:opacity-90 hover:-translate-y-px active:translate-y-0 " +
-    "shadow-none focus:ring-[#7fff6e]/40",
+    "shadow-none focus:ring-[var(--color-accent)]/40",
 
   outline:
     "bg-transparent text-[var(--color-text-base)] border border-[var(--color-text-base)]/[0.14] " +
@@ -67,7 +67,7 @@ export const GROUP_CARD_STYLES =
 
 // Use this on a div as the first child inside GROUP_CARD_STYLES
 export const GROUP_CARD_ACCENT_BAR =
-  "absolute top-0 left-0 right-0 h-[2px] bg-[#7fff6e] " +
+  "absolute top-0 left-0 right-0 h-[2px] bg-[var(--color-accent)] " +
   "scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-200";
 
 // Sidebar card
@@ -104,7 +104,7 @@ export const TAG_STYLES =
 
 export const BADGE_STYLES =
   "inline-flex items-center justify-center w-5 h-5 rounded-full " +
-  "bg-[#7fff6e] text-[#0a0a0f] text-[10px] font-semibold font-mono";
+  "bg-[var(--color-accent)] text-[#0a0a0f] text-[10px] font-semibold font-mono";
 
 // ─────────────────────────────────────────────
 // SECTION LABEL (above content blocks)
@@ -137,7 +137,7 @@ export const QUIZ_ITEM_NAME_STYLES =
   "mb-2 leading-snug";
 
 export const DIFFICULTY_DOT = {
-  easy:   "w-1.5 h-1.5 rounded-full bg-[#7fff6e] inline-block mr-1.5",
+  easy:   "w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] inline-block mr-1.5",
   medium: "w-1.5 h-1.5 rounded-full bg-[#ffcc44] inline-block mr-1.5",
   hard:   "w-1.5 h-1.5 rounded-full bg-[#ff5555] inline-block mr-1.5",
 };
@@ -155,8 +155,8 @@ export const LB_ROW_STYLES =
 
 export const LB_ROW_TOP_STYLES =
   "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1.5 " +
-  "bg-[#7fff6e]/[0.05] border border-[#7fff6e]/[0.12] " +
-  "hover:bg-[#7fff6e]/[0.08] transition-colors duration-100";
+  "bg-[var(--color-accent)]/[0.05] border border-[var(--color-accent)]/[0.12] " +
+  "hover:bg-[var(--color-accent)]/[0.08] transition-colors duration-100";
 
 export const LB_TABLE_ROW_STYLES =
   "grid grid-cols-[80px_1fr_120px_140px] bg-[var(--color-surface)] " +
@@ -165,9 +165,9 @@ export const LB_TABLE_ROW_STYLES =
 
 export const LB_TABLE_ROW_ME_STYLES =
   "grid grid-cols-[80px_1fr_120px_140px] " +
-  "border border-[#7fff6e]/25 bg-[#7fff6e]/[0.04] " +
+  "border border-[var(--color-accent)]/25 bg-[var(--color-accent)]/[0.04] " +
   "rounded-[10px] mb-2 px-4 py-3.5 items-center " +
-  "hover:border-[#7fff6e]/40 hover:translate-x-1 transition-all duration-150";
+  "hover:border-[var(--color-accent)]/40 hover:translate-x-1 transition-all duration-150";
 
 export const LB_TABLE_HEADER_STYLES =
   "grid grid-cols-[80px_1fr_120px_140px] px-4 pb-3 mb-3 " +
@@ -197,7 +197,7 @@ export const PERF_STAT_LABEL_STYLES =
   "text-[9px] uppercase tracking-[1.5px] text-[var(--color-muted)] font-mono mb-2";
 
 export const PERF_STAT_VALUE = {
-  score:    "font-['Syne',sans-serif] font-extrabold text-[22px] text-[#7fff6e]",
+  score:    "font-['Syne',sans-serif] font-extrabold text-[22px] text-[var(--color-accent)]",
   rank:     "font-['Syne',sans-serif] font-extrabold text-[22px] text-[#ffcc44]",
   accuracy: "font-['Syne',sans-serif] font-extrabold text-[22px] text-[#9b6dff]",
 };
@@ -210,12 +210,12 @@ export const QUESTION_CARD_STYLES =
   "bg-[var(--color-surface)] border border-[var(--color-text-base)]/[0.07] rounded-[12px] p-6 mb-4 " +
   "border-l-[3px] transition-colors duration-150";
 
-export const QUESTION_CARD_CORRECT = "border-l-[#7fff6e]";
+export const QUESTION_CARD_CORRECT = "border-l-[var(--color-accent)]";
 export const QUESTION_CARD_WRONG   = "border-l-[#ff5555]";
 export const QUESTION_CARD_PENDING = "border-l-[var(--color-text-base)]/[0.07]";
 
 export const QUESTION_NUMBER_BADGE = {
-  correct: "w-7 h-7 rounded-[6px] grid place-items-center text-[11px] font-semibold bg-[#7fff6e]/15 text-[#7fff6e] flex-shrink-0",
+  correct: "w-7 h-7 rounded-[6px] grid place-items-center text-[11px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] flex-shrink-0",
   wrong:   "w-7 h-7 rounded-[6px] grid place-items-center text-[11px] font-semibold bg-[#ff5555]/15 text-[#ff5555] flex-shrink-0",
   default: "w-7 h-7 rounded-[6px] grid place-items-center text-[11px] font-semibold bg-[var(--color-surface2)] text-[var(--color-muted)] flex-shrink-0",
 };
@@ -225,8 +225,8 @@ export const OPTION_STYLES = {
     "px-3.5 py-2.5 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] rounded-lg " +
     "text-xs font-mono flex justify-between items-center",
   correct:
-    "px-3.5 py-2.5 bg-[#7fff6e]/[0.07] border border-[#7fff6e]/30 rounded-lg " +
-    "text-xs font-mono text-[#7fff6e] flex justify-between items-center",
+    "px-3.5 py-2.5 bg-[var(--color-accent)]/[0.07] border border-[var(--color-accent)]/30 rounded-lg " +
+    "text-xs font-mono text-[var(--color-accent)] flex justify-between items-center",
   wrong:
     "px-3.5 py-2.5 bg-[#ff5555]/[0.07] border border-[#ff5555]/20 rounded-lg " +
     "text-xs font-mono text-[#ff5555] flex justify-between items-center",
@@ -240,7 +240,7 @@ export const TAB_CONTAINER_STYLES =
   "inline-flex bg-[var(--color-surface)] border border-[var(--color-text-base)]/[0.07] rounded-[10px] p-1";
 
 export const TAB_STYLES = {
-  active:   "px-6 py-2 text-xs rounded-[7px] cursor-pointer bg-[#7fff6e] text-[#0a0a0f] font-medium font-mono transition-all",
+  active:   "px-6 py-2 text-xs rounded-[7px] cursor-pointer bg-[var(--color-accent)] text-[#0a0a0f] font-medium font-mono transition-all",
   inactive: "px-6 py-2 text-xs rounded-[7px] cursor-pointer text-[var(--color-muted)] font-mono hover:text-[var(--color-text-base)] transition-all",
 };
 
@@ -257,7 +257,7 @@ export const INVITE_CODE_VALUE_STYLES =
 
 export const INVITE_CODE_COPY_BTN_STYLES =
   "bg-transparent border-0 text-[var(--color-muted)] text-sm cursor-pointer " +
-  "px-1.5 py-0.5 rounded hover:text-[#7fff6e] transition-colors";
+  "px-1.5 py-0.5 rounded hover:text-[var(--color-accent)] transition-colors";
 
 // ─────────────────────────────────────────────
 // MEMBER LIST ITEM
@@ -270,7 +270,7 @@ export const MEMBER_NAME_STYLES = "text-xs font-mono text-[var(--color-text-base
 
 export const AVATAR_COLORS = [
   "#7b2ff7", "#2f7bf7", "#2fb87b",
-  "#f72f4f", "#f79a2f", "#7fff6e",
+  "#f72f4f", "#f79a2f", "var(--color-accent)",
   "#9b6dff", "#ff5555", "#ffcc44",
 ];
 
@@ -311,7 +311,7 @@ export const NAVBAR_STYLES =
   "bg-[var(--color-bg)]/85 backdrop-blur-xl border-b border-[var(--color-text-base)]/[0.07]";
 
 export const NAVBAR_LOGO_MARK_STYLES =
-  "w-8 h-8 rounded-lg bg-[#7fff6e] grid place-items-center " +
+  "w-8 h-8 rounded-lg bg-[var(--color-accent)] grid place-items-center " +
   "text-sm font-extrabold text-[#0a0a0f] font-['Syne',sans-serif] flex-shrink-0";
 
 export const NAVBAR_LOGO_TEXT_STYLES =

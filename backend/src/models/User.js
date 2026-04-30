@@ -1,56 +1,67 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     googleId: {
-        type: String,
-        unique: true,
-        sparse: true // allows multiple docs without googleId (email/password users)
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple docs without googleId (email/password users)
     },
     email: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: true,
+      unique: true,
     },
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     password: {
-        type: String // only for email/password users
+      type: String, // only for email/password users
     },
     authProvider: {
-        type: String,
-        enum: ['google', 'local'],
-        default: 'local'
+      type: String,
+      enum: ["google", "local"],
+      default: "local",
     },
     avatar: {
-        type: String
+      type: String,
     },
-    joinedGroups: [{
+    joinedGroups: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group'
-    }],
-    createdGroups: [{
+        ref: "Group",
+      },
+    ],
+    createdGroups: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group'
-    }],
+        ref: "Group",
+      },
+    ],
     totalScore: {
-        type: Number,
-        default: 0
-    }
-}, { timestamps: true });
+      type: Number,
+      default: 0,
+    },
+    isDemo: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true },
+);
 
 // Hash password before saving (only if it was modified)
-userSchema.pre('save', async function () {
-    if (!this.isModified('password') || !this.password) return;
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+userSchema.pre("save", async function () {
+  if (!this.isModified("password") || !this.password) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Compare entered password with hashed password
 userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

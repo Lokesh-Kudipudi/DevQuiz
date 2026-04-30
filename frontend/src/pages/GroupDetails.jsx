@@ -134,7 +134,7 @@ const GroupDetails = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7fff6e]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent)]"></div>
         </div>
       </Layout>
     );
@@ -186,7 +186,7 @@ const GroupDetails = () => {
         <div className="flex justify-between items-center mb-6">
         <Link
           to="/dashboard"
-          className="text-[var(--color-muted)] hover:text-[#7fff6e] inline-flex items-center transition-colors"
+          className="text-[var(--color-muted)] hover:text-[var(--color-accent)] inline-flex items-center transition-colors"
         >
           <svg
             className="w-4 h-4 mr-2"
@@ -278,7 +278,7 @@ const GroupDetails = () => {
           >
             <h3 className="text-xl font-bold text-[var(--color-text-base)] mb-4 flex items-center gap-2">
               <svg
-                className="w-6 h-6 text-[#7fff6e]"
+                className="w-6 h-6 text-[var(--color-accent)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -307,14 +307,14 @@ const GroupDetails = () => {
                 value={tempKey}
                 onChange={(e) => setTempKey(e.target.value)}
                 placeholder="Enter your Gemini API Key"
-                className="w-full bg-[var(--color-surface2)] border border-[var(--color-text-base)]/[0.07] rounded-lg p-3 text-[var(--color-text-base)] focus:outline-none focus:border-[#7fff6e] transition-colors"
+                className="w-full bg-[var(--color-surface2)] border border-[var(--color-text-base)]/[0.07] rounded-lg p-3 text-[var(--color-text-base)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
               />
               <p className="text-xs text-[var(--color-muted)] mt-2">
                 <a
                   href="https://aistudio.google.com/app/apikey"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#7fff6e] hover:underline"
+                  className="text-[var(--color-accent)] hover:underline"
                 >
                   Get a key from Google AI Studio
                 </a>
@@ -354,19 +354,19 @@ const GroupDetails = () => {
           {/* Quiz */}
           <Link
             to={`/groups/${id}/create-quiz`}
-            className="group flex items-center gap-4 p-4 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] hover:border-[#7fff6e]/30 rounded-xl transition-all duration-200"
+            className="group flex items-center gap-4 p-4 bg-[var(--color-bg)] border border-[var(--color-text-base)]/[0.07] hover:border-[var(--color-accent)]/30 rounded-xl transition-all duration-200"
             onClick={() => setShowCreateModal(false)}
           >
-            <div className="w-10 h-10 rounded-lg bg-[#7fff6e]/10 flex items-center justify-center shrink-0 group-hover:bg-[#7fff6e]/20 transition-colors">
-              <svg className="w-5 h-5 text-[#7fff6e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-10 h-10 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center shrink-0 group-hover:bg-[var(--color-accent)]/20 transition-colors">
+              <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-['Syne',sans-serif] font-bold text-sm text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors">Quiz</div>
+              <div className="font-['Syne',sans-serif] font-bold text-sm text-[var(--color-text-base)] group-hover:text-[var(--color-accent)] transition-colors">Quiz</div>
               <div className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">Multiple-choice quiz on any topic</div>
             </div>
-            <svg className="w-4 h-4 text-[var(--color-muted)] group-hover:text-[#7fff6e] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
@@ -458,7 +458,7 @@ const GroupDetails = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-[var(--color-text-base)] flex items-center">
               <svg
-                className="w-6 h-6 mr-2 text-[#7fff6e]"
+                className="w-6 h-6 mr-2 text-[var(--color-accent)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -479,11 +479,11 @@ const GroupDetails = () => {
               {group.quizzes.map((quiz) => (
                 <Card
                   key={quiz._id}
-                  className="group hover:border-[#7fff6e]/30 transition-all duration-300"
+                  className="group hover:border-[var(--color-accent)]/30 transition-all duration-300"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors mb-1">
+                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[var(--color-accent)] transition-colors mb-1">
                         {quiz.title}
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-[var(--color-muted)]">
@@ -781,7 +781,7 @@ const GroupDetails = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-[var(--color-text-base)] flex items-center">
               <svg
-                className="w-6 h-6 mr-2 text-[#7fff6e]"
+                className="w-6 h-6 mr-2 text-[var(--color-accent)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -803,11 +803,11 @@ const GroupDetails = () => {
               {group.codingRounds.map((round) => (
                 <Card
                   key={round._id}
-                  className="group hover:border-[#7fff6e]/30 transition-all duration-300 relative"
+                  className="group hover:border-[var(--color-accent)]/30 transition-all duration-300 relative"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[#7fff6e] transition-colors mb-1 pr-8">
+                      <h3 className="font-bold text-xl text-[var(--color-text-base)] group-hover:text-[var(--color-accent)] transition-colors mb-1 pr-8">
                         {round.title}
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-[var(--color-muted)]">
@@ -911,14 +911,14 @@ const GroupDetails = () => {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Group Details Card */}
-          <Card className="border-[#7fff6e]/20 bg-linear-to-b from-[var(--color-surface2)] to-[var(--color-surface)]">
+          <Card className="border-[var(--color-accent)]/20 bg-linear-to-b from-[var(--color-surface2)] to-[var(--color-surface)]">
             <button
               onClick={() => toggleCollapse("groupDetails")}
               className="w-full flex items-center justify-between text-left group"
             >
               <h2 className="text-lg font-semibold text-[var(--color-text-base)] flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-[#7fff6e]"
+                  className="w-5 h-5 mr-2 text-[var(--color-accent)]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1005,7 +1005,7 @@ const GroupDetails = () => {
                     Invite Code
                   </p>
                   <div className="flex items-center justify-center space-x-2">
-                    <p className="text-xl font-mono font-bold text-[#7fff6e] tracking-widest">
+                    <p className="text-xl font-mono font-bold text-[var(--color-accent)] tracking-widest">
                       {group.inviteCode}
                     </p>
                     <button
@@ -1046,7 +1046,7 @@ const GroupDetails = () => {
             >
               <h2 className="text-lg font-semibold text-[var(--color-text-base)] flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-[#7fff6e]"
+                  className="w-5 h-5 mr-2 text-[var(--color-accent)]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1093,7 +1093,7 @@ const GroupDetails = () => {
                         className="w-9 h-9 rounded-full border-2 border-[var(--color-text-base)]/[0.07]"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-[#7fff6e]/10 text-[#7fff6e] flex items-center justify-center font-bold border-2 border-[var(--color-text-base)]/[0.07] text-sm">
+                      <div className="w-9 h-9 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] flex items-center justify-center font-bold border-2 border-[var(--color-text-base)]/[0.07] text-sm">
                         {member.name?.charAt(0)}
                       </div>
                     )}

@@ -59,7 +59,7 @@ const LeaderboardView = ({ results }) => {
                             )}
                             <span className="text-xs font-mono text-[var(--color-text-base)]">
                                 {result.user?.name || 'Unknown'}
-                                {isMe && <span className="ml-1.5 text-[10px] text-[#7fff6e]">(you)</span>}
+                                {isMe && <span className="ml-1.5 text-[10px] text-[var(--color-accent)]">(you)</span>}
                             </span>
                         </div>
 

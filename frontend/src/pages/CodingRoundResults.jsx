@@ -29,7 +29,7 @@ const CodingRoundResults = () => {
     if (loading) return (
         <Layout>
             <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="w-10 h-10 border-2 border-[var(--color-text-base)]/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-2 border-[var(--color-text-base)]/[0.07] border-t-[var(--color-accent)] rounded-full animate-spin" />
             </div>
         </Layout>
     );
@@ -53,7 +53,7 @@ const CodingRoundResults = () => {
     return (
         <Layout>
           <div className="max-w-[1200px] mx-auto px-8 py-10">
-            <Link to={`/groups/${round.group._id || round.group}`} className="text-[var(--color-muted)] hover:text-[#7fff6e] mb-6 inline-flex items-center gap-2 font-mono text-sm transition-colors">
+            <Link to={`/groups/${round.group._id || round.group}`} className="text-[var(--color-muted)] hover:text-[var(--color-accent)] mb-6 inline-flex items-center gap-2 font-mono text-sm transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>

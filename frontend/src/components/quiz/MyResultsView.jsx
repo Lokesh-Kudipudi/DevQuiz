@@ -70,7 +70,7 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
 
             {/* Question review */}
             <h3 className="font-['Syne',sans-serif] font-bold text-base text-[var(--color-text-base)] flex items-center gap-2 mb-4 mt-8">
-                <svg className="w-4 h-4 text-[#7fff6e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Detailed Review
@@ -105,7 +105,7 @@ const MyResultsView = ({ quiz, attempt, myRank, quizId }) => {
 
                                     if (opt === q.correctAnswer) {
                                         style = OPTION_STYLES.correct;
-                                        badge = <span className="text-[10px] text-[#7fff6e] font-mono ml-2 shrink-0">✓ Correct</span>;
+                                        badge = <span className="text-[10px] text-[var(--color-accent)] font-mono ml-2 shrink-0">✓ Correct</span>;
                                     } else if (opt === userSelected && !isCorrect) {
                                         style = OPTION_STYLES.wrong;
                                         badge = <span className="text-[10px] text-[#ff5555] font-mono ml-2 shrink-0">✗ Your answer</span>;

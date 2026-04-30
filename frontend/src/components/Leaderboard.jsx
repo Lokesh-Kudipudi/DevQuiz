@@ -41,7 +41,7 @@ const Leaderboard = ({ groupId }) => {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-6">
-                <div className="w-5 h-5 border-2 border-[var(--color-text-base)]/[0.07] border-t-[#7fff6e] rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[var(--color-text-base)]/[0.07] border-t-[var(--color-accent)] rounded-full animate-spin" />
             </div>
         );
     }
