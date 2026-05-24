@@ -74,14 +74,16 @@ const Login = () => {
       <div className="relative z-10 w-full max-w-[400px] animate-[fadeUp_0.3s_ease_forwards]">
         {/* Logo mark */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-accent)] mb-5">
-            <span className="font-['Syne',sans-serif] font-extrabold text-2xl text-[#0a0a0f]">
-              D
-            </span>
+          <div className="flex items-center gap-2">
+            <img
+              src="/icon.png"
+              alt="App icon"
+              className="mx-auto h-24 w-24"
+              />
+            <h1 className="font-['Syne',sans-serif] font-extrabold text-5xl tracking-[-2px] text-[var(--color-text-base)] mb-2">
+              DevQuiz
+            </h1>
           </div>
-          <h1 className="font-['Syne',sans-serif] font-extrabold text-5xl tracking-[-2px] text-[var(--color-text-base)] mb-2">
-            DevQuiz
-          </h1>
           <p className="text-[var(--color-muted)] text-xs font-mono tracking-wide">
             Master development skills, one quiz at a time.
           </p>

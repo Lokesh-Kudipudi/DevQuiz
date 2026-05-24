@@ -4,7 +4,6 @@ import axios from "../api/axios";
 import Layout from "../components/ui/Layout";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import CodeEditor from "../components/quiz/CodeEditor";
 import LiveLeaderboard from "../components/quiz/LiveLeaderboard";
 import { useAuth } from "../context/AuthContext";
 
@@ -91,19 +90,6 @@ const TakeCodingRound = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  };
-
-  const handleCodeChange = (value) => {
-    if (round) {
-      const qId = round.questions[currentQuestionIndex]._id;
-      codeRef.current[qId] = value;
-    }
-  };
-
-  const handleSubmitCode = async (code, output) => {
-    // This function is triggered by the CodeEditor's "Run" or we can separate Run vs Submit.
-    // For this MVP, let's say "Run" just tests locally (Piston), and we add a "Submit Solution" button
-    // that actually sends it to the backend for scoring.
   };
 
   const submitSolution = async () => {
@@ -262,15 +248,20 @@ const TakeCodingRound = () => {
           </div>
         </div>
 
-        {/* Right Panel: Code Editor */}
-        <div className="flex-1 flex flex-col bg-[#1e1e1e]">
-          <div className="flex-1 overflow-hidden p-4">
-            <CodeEditor
-              key={currentQuestion._id} // Re-mount on question change
-              initialCode={codeRef.current[currentQuestion._id]}
-              initialLanguage={currentQuestion.language || "cpp"}
-              onCodeChange={handleCodeChange}
-            />
+        {/* Right Panel: Submission */}
+        <div className="flex-1 flex flex-col bg-gray-950">
+          <div className="flex-1 overflow-y-auto p-6">
+            <Card className="bg-gray-900 border-gray-800">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">
+                  Submit your solution
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Code execution has been removed from this project. Review the
+                  prompt and test cases, then submit when you are ready.
+                </p>
+              </div>
+            </Card>
           </div>
           <div className="h-16 bg-gray-900 border-t border-gray-800 flex justify-end items-center px-6 gap-4">
             {submissionStatus === "success" && (

@@ -95,7 +95,6 @@ router.post("/register", async (req, res) => {
       avatar: user.avatar,
       joinedGroups: user.joinedGroups,
       createdGroups: user.createdGroups,
-      totalScore: user.totalScore,
     });
   } catch (err) {
     console.error("Register error:", err);
@@ -144,7 +143,6 @@ router.post("/login", async (req, res) => {
       avatar: user.avatar,
       joinedGroups: user.joinedGroups,
       createdGroups: user.createdGroups,
-      totalScore: user.totalScore,
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -173,7 +171,6 @@ router.post("/demo-login", async (req, res) => {
       avatar: user.avatar,
       joinedGroups: user.joinedGroups,
       createdGroups: user.createdGroups,
-      totalScore: user.totalScore,
       isDemo: user.isDemo,
     });
   } catch (err) {

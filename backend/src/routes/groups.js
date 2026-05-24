@@ -6,11 +6,13 @@ const {
   joinGroup,
   getUserGroups,
   getGroupDetails,
+  deleteGroup,
 } = require("../controllers/groupController");
 
 router.post("/", protect, checkNotDemo, createGroup);
 router.post("/join", protect, checkNotDemo, joinGroup);
 router.get("/", protect, getUserGroups);
 router.get("/:id", protect, getGroupDetails);
+router.delete("/:id", protect, checkNotDemo, deleteGroup);
 
 module.exports = router;

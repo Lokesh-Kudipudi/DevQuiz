@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import axios from "../api/axios";
@@ -12,11 +12,13 @@ import WHITELISTED_EMAILS from "../constants/config";
 
 const GroupDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
   const [deleteModal, setDeleteModal] = useState({
     show: false,
     type: null,
@@ -90,11 +92,17 @@ const GroupDetails = () => {
           ),
         }));
         toast.success("Assessment deleted successfully");
+      } else if (type === "group") {
+        setIsDeletingGroup(true);
+        await axios.delete(`/api/groups/${id}`);
+        toast.success("Group deleted successfully");
+        navigate("/dashboard");
       }
     } catch (err) {
       toast.error(`Failed to delete`);
       console.error(err);
     } finally {
+      setIsDeletingGroup(false);
       setDeleteModal({
         show: false,
         type: null,
@@ -417,7 +425,7 @@ const GroupDetails = () => {
       <Modal
         isOpen={deleteModal.show}
         onClose={() => setDeleteModal({ show: false, type: null, id: null, title: "" })}
-        title={`Delete ${deleteModal.type === "quiz" ? "Quiz" : deleteModal.type === "online-assessment" ? "Assessment" : "Coding Round"}`}
+        title={`Delete ${deleteModal.type === "quiz" ? "Quiz" : deleteModal.type === "online-assessment" ? "Assessment" : deleteModal.type === "group" ? "Group" : "Coding Round"}`}
         footer={
           <>
             <Button
@@ -426,8 +434,14 @@ const GroupDetails = () => {
             >
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmDelete}>
-              Delete
+            <Button
+              variant="danger"
+              onClick={confirmDelete}
+              disabled={deleteModal.type === "group" && isDeletingGroup}
+            >
+              {deleteModal.type === "group" && isDeletingGroup
+                ? "Deleting..."
+                : "Delete"}
             </Button>
           </>
         }
@@ -442,7 +456,7 @@ const GroupDetails = () => {
           <p className="text-[13px] text-[var(--color-muted)] font-mono leading-relaxed">
             Are you sure you want to delete{" "}
             <span className="text-[var(--color-text-base)] font-semibold">"{deleteModal.title}"</span>?
-            {" "}This action cannot be undone and all associated attempts will be permanently removed.
+            {" "}This action cannot be undone and all associated data will be permanently removed.
           </p>
         </div>
         {/* Warning callout */}
@@ -932,30 +946,58 @@ const GroupDetails = () => {
                 </svg>
                 Group Details
               </h2>
-              <svg
-                className={`w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-text-base)] transition-transform duration-200 ${collapsed.groupDetails ? "-rotate-90" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              <div className="flex items-center gap-2">
+                <svg
+                  className={`w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-text-base)] transition-transform duration-200 ${collapsed.groupDetails ? "-rotate-90" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </button>
 
             {!collapsed.groupDetails && (
               <div className="mt-4 space-y-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-[var(--color-text-base)]">
-                    {group.name}
-                  </h3>
-                  <p className="text-[var(--color-muted)] text-sm mt-1">
-                    {group.description}
-                  </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-2xl font-bold text-[var(--color-text-base)]">
+                      {group.name}
+                    </h3>
+                    <p className="text-[var(--color-muted)] text-sm mt-1">
+                      {group.description}
+                    </p>
+                  </div>
+                  {group?.creator?._id === user?._id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDeleteClick("group", group._id, group.name)
+                      }
+                      title="Delete group"
+                      className="p-1.5 rounded-lg border border-[#ff5555]/40 text-[#ff5555] hover:bg-[#ff5555]/10 transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <div className="space-y-2 text-sm text-[var(--color-muted)]">
                   <div className="flex items-center">

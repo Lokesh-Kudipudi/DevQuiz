@@ -121,10 +121,6 @@ const attemptQuiz = async (req, res) => {
         });
         await quiz.save();
 
-        // Update User total score
-        await User.findByIdAndUpdate(req.user._id, {
-            $inc: { totalScore: score }
-        });
 
         res.json({ score, total: quiz.questions.length, processedAnswers });
     } catch (err) {
@@ -180,14 +176,6 @@ const deleteQuiz = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to delete this quiz' });
         }
 
-        // Revert user scores
-        const attempts = await Attempt.find({ quiz: quiz._id });
-        for (const attempt of attempts) {
-            await User.findByIdAndUpdate(attempt.user, {
-                $inc: { totalScore: -attempt.score }
-            });
-        }
-
         // Delete associated attempts
         await Attempt.deleteMany({ quiz: quiz._id });
 
@@ -213,4 +201,3 @@ module.exports = {
     getQuizResults,
     deleteQuiz
 };
-

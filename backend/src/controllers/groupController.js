@@ -2,6 +2,8 @@ const Group = require('../models/Group');
 const CodingRound = require('../models/CodingRound');
 const OnlineAssessment = require('../models/OnlineAssessment');
 const User = require('../models/User');
+const Quiz = require('../models/Quiz');
+const Attempt = require('../models/Attempt');
 const { v4: uuidv4 } = require('uuid');
 
 // @desc    Create a new group
@@ -137,9 +139,48 @@ const getGroupDetails = async (req, res) => {
     }
 };
 
+// @desc    Delete group and related content
+// @route   DELETE /api/groups/:id
+const deleteGroup = async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.id);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.creator.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to delete this group' });
+        }
+
+        const quizIds = await Quiz.find({ group: group._id }).distinct('_id');
+
+        await Attempt.deleteMany({ quiz: { $in: quizIds } });
+
+        await Promise.all([
+            Quiz.deleteMany({ group: group._id }),
+            CodingRound.deleteMany({ group: group._id }),
+            OnlineAssessment.deleteMany({ group: group._id })
+        ]);
+
+        await User.updateMany(
+            { joinedGroups: group._id },
+            { $pull: { joinedGroups: group._id, createdGroups: group._id } }
+        );
+
+        await Group.findByIdAndDelete(group._id);
+
+        res.json({ message: 'Group deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     createGroup,
     joinGroup,
     getUserGroups,
-    getGroupDetails
+    getGroupDetails,
+    deleteGroup
 };

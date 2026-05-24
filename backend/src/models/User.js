@@ -40,10 +40,6 @@ const userSchema = new mongoose.Schema(
         ref: "Group",
       },
     ],
-    totalScore: {
-      type: Number,
-      default: 0,
-    },
     isDemo: {
       type: Boolean,
       default: false,

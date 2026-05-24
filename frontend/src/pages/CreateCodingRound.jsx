@@ -74,7 +74,7 @@ const CreateCodingRound = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto mt-6">
         <Card>
           <h1 className="text-3xl font-bold text-white mb-6">
             Create Coding Round

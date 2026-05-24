@@ -400,10 +400,7 @@ const OAResults = () => {
                           <p
                             className={`text-lg font-bold ${isMe ? "text-violet-400" : "text-white"}`}
                           >
-                            {entry.totalScore}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            /{entry.maxPossible}
+                            {entry.totalScore}/{entry.maxPossible}
                           </p>
                         </div>
                       </div>

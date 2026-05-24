@@ -19,7 +19,6 @@ async function seed() {
         password: "demopassword123",
         authProvider: "local",
         isDemo: true,
-        totalScore: 150,
         googleId: "demo_google_id",
       });
       console.log("Demo user created");
@@ -34,7 +33,6 @@ async function seed() {
         email: "other@devquiz.com",
         password: "password123",
         authProvider: "local",
-        totalScore: 200,
         googleId: "other_google_id",
       });
       console.log("Other user created");

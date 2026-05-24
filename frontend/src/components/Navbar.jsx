@@ -38,8 +38,16 @@ const Navbar = () => {
     <nav className={NAVBAR_STYLES}>
       {/* Logo */}
       <Link to="/dashboard" className="flex items-center gap-2.5 no-underline">
-        <div className={NAVBAR_LOGO_MARK_STYLES}>D</div>
-        <span className={NAVBAR_LOGO_TEXT_STYLES}>DevQuiz</span>
+        <div className="flex items-center gap-2">
+            <img
+              src="/icon.png"
+              alt="App icon"
+              className="mx-auto h-12 w-12"
+              />
+            <h1 className="font-['Syne',sans-serif] font-extrabold text-xl tracking-[-2px] text-[var(--color-text-base)] mb-2">
+              DevQuiz
+            </h1>
+          </div>
       </Link>
 
       {/* Right side */}
