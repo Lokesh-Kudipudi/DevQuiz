@@ -91,7 +91,7 @@ const TakeQuiz = () => {
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto pt-6 pb-4">
                 <div className="mb-6">
                     <div className="flex justify-between text-sm text-gray-400 mb-2">
                         <span>Question {currentQuestionIndex + 1} of {quiz.questions.length}</span>
@@ -142,4 +142,3 @@ const TakeQuiz = () => {
 };
 
 export default TakeQuiz;
-

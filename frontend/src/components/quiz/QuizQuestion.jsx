@@ -3,7 +3,7 @@ import QuestionDisplay from '../ui/QuestionDisplay';
 
 const QuizQuestion = ({ question, selectedOption, onOptionSelect }) => {
     return (
-        <Card className="mb-8 min-h-[400px] flex flex-col">
+        <Card className="my-8 min-h-[400px] flex flex-col">
             <div className="mb-8 text-white">
                 <QuestionDisplay content={question.question} />
             </div>

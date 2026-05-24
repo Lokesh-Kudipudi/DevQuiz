@@ -1,72 +1,78 @@
-# Data & Schema Doc
+# Data & Schema Documentation
 
-## Entities
+## Models Overview
+Current Mongoose models: `User`, `Group`, `Quiz`, `Attempt`, `OnlineAssessment`, `CodingRound`.
 
-### User
-- Fields & Types
-  - googleId: string
-  - email: string
-  - name: string
-  - password: string (optional, local auth)
-  - authProvider: "google" | "local"
-  - avatar: string (url)
-  - joinedGroups: ObjectId[] -> Group
-  - createdGroups: ObjectId[] -> Group
-  - isDemo: boolean
+## User
+- `googleId: String`
+- `email: String`
+- `name: String`
+- `password: String` (optional for local auth)
+- `authProvider: 'google' | 'local'`
+- `avatar: String`
+- `joinedGroups: ObjectId[] -> Group`
+- `createdGroups: ObjectId[] -> Group`
+- `isDemo: Boolean`
 
-### Group
-- Fields & Types
-  - name: string
-  - description: string
-  - inviteCode: string
-  - creator: ObjectId -> User
-  - members: ObjectId[] -> User
-  - quizzes: ObjectId[] -> Quiz
-  - onlineAssessments: ObjectId[] -> OnlineAssessment
+## Group
+- `name: String`
+- `description: String`
+- `inviteCode: String`
+- `creator: ObjectId -> User`
+- `members: ObjectId[] -> User`
+- `quizzes: ObjectId[] -> Quiz`
+- `onlineAssessments: ObjectId[] -> OnlineAssessment`
 
-### Quiz
-- Fields & Types
-  - title: string
-  - topic: string
-  - difficulty: "Easy" | "Medium" | "Hard"
-  - creator: ObjectId -> User
-  - group: ObjectId -> Group
-  - questions: { question, options[], correctAnswer }
-  - participants: { user: ObjectId -> User, score: number, attemptedAt: date }
+## Quiz
+- `title: String`
+- `topic: String` (legacy/backward compatibility)
+- `topics: String` (topic prompt source)
+- `difficulty: 'Easy' | 'Medium' | 'Hard'`
+- `creator: ObjectId -> User`
+- `group: ObjectId -> Group` (optional in solo scope)
+- `scope: 'group' | 'solo'`
+- `questions[]: { question, options[], correctAnswer }`
+- `participants[]: { user, score, attemptedAt }`
 
-### Attempt
-- Fields & Types
-  - quiz: ObjectId -> Quiz
-  - user: ObjectId -> User
-  - score: number
-  - answers: { questionIndex, selectedOption, isCorrect }
+## Attempt
+- `quiz: ObjectId -> Quiz`
+- `user: ObjectId -> User`
+- `score: Number`
+- `answers[]: { questionIndex, selectedOption, isCorrect }`
+- `createdAt: Date`
 
-### CodingRound
-- Fields & Types
-  - title: string
-  - group: ObjectId -> Group
-  - creator: ObjectId -> User
-  - type: "Piston" | "External"
-  - status: "Pending" | "Live" | "Completed"
-  - timeLimit: number
-  - startTime: date
-  - endTime: date
-  - allowSelfAttempt: boolean
-  - externalQuestionConfig: { targetQuestionCount?, difficulties?, topics? }
-  - questions: { title, description?, difficulty, topic?, starterCode?, language?, testCases?, platform?, url?, points?, addedBy? }
-  - participants: { user, startTime, submitTime, score, questionStatus[] }
+## OnlineAssessment
+- `title: String`
+- `group: ObjectId -> Group` (optional in solo scope)
+- `creator: ObjectId -> User`
+- `scope: 'group' | 'solo'`
+- `sections[]: { name, topics, difficulty, questionCount, timeLimit, questions[] }`
+- `participants[]: {`
+  - `user`
+  - `startedAt`
+  - `endedAt`
+  - `status`
+  - `sectionSubmissions[]: { sectionIndex, answers[], score, submittedAt, timeTaken }`
+`}`
 
-### OnlineAssessment
-- Fields & Types
-  - title: string
-  - group: ObjectId -> Group
-  - creator: ObjectId -> User
-  - status: "Pending" | "Open" | "Closed"
-  - sections: { name, topics, questionCount, timeLimit, questions[] }
-  - participants: { user, startedAt, endedAt, status, sectionSubmissions[] }
+## CodingRound
+- `title: String`
+- `group: ObjectId -> Group` (optional in solo scope)
+- `creator: ObjectId -> User`
+- `scope: 'group' | 'solo'`
+- `type: 'Piston' | 'External'`
+- `status: 'Pending' | 'Live' | 'Completed'`
+- `timeLimit: Number`
+- `startTime: Date`
+- `endTime: Date`
+- `allowSelfAttempt: Boolean`
+- `externalQuestionConfig: { targetQuestionCount?, difficulties?, topics? }`
+- `questions[]: { title, description?, difficulty, topic?, starterCode?, language?, testCases?, platform?, url?, points?, addedBy? }`
+- `participants[]: { user, startTime, submitTime, score, questionStatus[] }`
+- `questionStatus[]` includes submission/timing fields such as `status`, `submittedAt`, `timeTaken`.
 
-## Relationships
-- User 1..* -> Groups (createdGroups, joinedGroups)
-- Group 1..* -> Quizzes, OnlineAssessments, CodingRounds
-- Quiz 1..* -> Attempts
-- CodingRound and OnlineAssessment store participants embedded under their documents
+## Relationship Notes
+- One user can create/join many groups.
+- Group docs reference quizzes/OAs; coding rounds are queried by `group` field.
+- Attempts are separate quiz-attempt records.
+- OA and CodingRound participant state is embedded inside parent documents.

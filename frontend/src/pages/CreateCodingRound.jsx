@@ -4,32 +4,17 @@ import axios from "../api/axios";
 import Layout from "../components/ui/Layout";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import RoundTypeSelection from "../components/coding-round/RoundTypeSelection";
 import BasicDetailsForm from "../components/coding-round/BasicDetailsForm";
-import PistonRoundForm from "../components/coding-round/PistonRoundForm";
 
 const CreateCodingRound = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
+  const isSoloMode = !groupId;
   const [title, setTitle] = useState("");
   const [timeLimit, setTimeLimit] = useState(60);
-  const [roundType, setRoundType] = useState("External"); // 'Piston' | 'External'
+  const roundType = "External";
   const [allowSelfAttempt, setAllowSelfAttempt] =
     useState(false);
-
-  // Piston specific state
-  const [questions, setQuestions] = useState([
-    {
-      title: "",
-      description: "",
-      difficulty: "Easy",
-      topic: "",
-      starterCode: "// Write your code here",
-      testCases: [
-        { input: "", expectedOutput: "", isHidden: false },
-      ],
-    },
-  ]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,26 +27,17 @@ const CreateCodingRound = () => {
     try {
       const payload = {
         title,
-        groupId,
         timeLimit,
         type: roundType,
         allowSelfAttempt,
       };
 
-      if (roundType === "Piston") {
-        payload.questions = questions;
-      }
-
       const { data } = await axios.post(
-        "/api/coding-rounds",
-        payload,
+        isSoloMode ? "/api/solo/coding-rounds" : "/api/coding-rounds",
+        isSoloMode ? payload : { ...payload, groupId },
       );
 
-      if (roundType === "External") {
-        navigate(`/coding-round/${data._id}/lobby`);
-      } else {
-        navigate(`/groups/${groupId}`);
-      }
+      navigate(`/coding-round/${data._id}/lobby`);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -79,6 +55,11 @@ const CreateCodingRound = () => {
           <h1 className="text-3xl font-bold text-white mb-6">
             Create Coding Round
           </h1>
+          <p className="text-gray-400 mb-6">
+            {isSoloMode
+              ? "Create a personal coding practice round."
+              : "Create and host a coding round for your group."}
+          </p>
 
           {error && (
             <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6">
@@ -87,12 +68,6 @@ const CreateCodingRound = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Round Type Selection */}
-            <RoundTypeSelection
-              roundType={roundType}
-              setRoundType={setRoundType}
-            />
-
             {/* Basic Details */}
             <BasicDetailsForm
               title={title}
@@ -104,25 +79,13 @@ const CreateCodingRound = () => {
               setAllowSelfAttempt={setAllowSelfAttempt}
             />
 
-            {/* Piston Specific Form */}
-            {roundType === "Piston" && (
-              <PistonRoundForm
-                questions={questions}
-                setQuestions={setQuestions}
-              />
-            )}
-
             <div className="flex justify-end pt-6 border-t border-gray-700 mt-8">
               <Button
                 type="submit"
                 disabled={loading}
                 className="w-full md:w-auto"
               >
-                {loading
-                  ? "Creating..."
-                  : roundType === "External"
-                    ? "Create Lobby"
-                    : "Create Coding Round"}
+                {loading ? "Creating..." : "Create Lobby"}
               </Button>
             </div>
           </form>

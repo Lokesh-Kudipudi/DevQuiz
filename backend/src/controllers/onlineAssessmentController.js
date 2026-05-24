@@ -3,6 +3,9 @@ const WHITELISTED_EMAILS = require('../config/whitelist');
 const Group = require('../models/Group');
 const { generateOASectionQuestions } = require('../services/geminiService');
 
+const isCreator = (doc, userId) => doc.creator.toString() === userId.toString();
+const isSoloScope = (doc) => doc.scope === 'solo' || !doc.group;
+
 // @desc    Create OA — generate questions for all sections and save
 // @route   POST /api/online-assessments/generate-and-create
 const createOA = async (req, res) => {
@@ -47,6 +50,7 @@ const createOA = async (req, res) => {
             title,
             group: groupId,
             creator: req.user._id,
+            scope: 'group',
             sections: hydratedSections
         });
 
@@ -62,6 +66,70 @@ const createOA = async (req, res) => {
     }
 };
 
+// @desc    Get solo assessments for current user
+// @route   GET /api/solo/online-assessments
+const getSoloOAs = async (req, res) => {
+    try {
+        const assessments = await OnlineAssessment.find({
+            creator: req.user._id,
+            scope: 'solo'
+        })
+            .sort({ createdAt: -1 })
+            .select('title sections status creator createdAt participants')
+            .lean();
+
+        res.json(assessments);
+    } catch (err) {
+        console.error('getSoloOAs error:', err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Create solo OA — generate questions for all sections and save
+// @route   POST /api/solo/online-assessments/generate-and-create
+const createSoloOA = async (req, res) => {
+    try {
+        const { title, sections } = req.body;
+
+        if (!title || !sections || !Array.isArray(sections) || sections.length === 0) {
+            return res.status(400).json({ message: 'Title and at least one section are required.' });
+        }
+
+        for (const s of sections) {
+            if (!s.name || !s.topics || !s.questionCount || !s.timeLimit) {
+                return res.status(400).json({ message: 'Each section must have name, topics, questionCount, and timeLimit.' });
+            }
+        }
+
+        const apiKey = req.headers['x-gemini-api-key'];
+
+        if (!apiKey && !WHITELISTED_EMAILS.includes(req.user.email)) {
+             return res.status(400).json({ message: 'API Key required. Please configure your Gemini API Key.' });
+        }
+
+        const generatedQuestions = await Promise.all(
+            sections.map(section => generateOASectionQuestions(section, apiKey))
+        );
+
+        const hydratedSections = sections.map((section, i) => ({
+            ...section,
+            questions: generatedQuestions[i]
+        }));
+
+        const oa = await OnlineAssessment.create({
+            title,
+            creator: req.user._id,
+            scope: 'solo',
+            sections: hydratedSections
+        });
+
+        res.status(201).json(oa);
+    } catch (err) {
+        console.error('createSoloOA error:', err);
+        res.status(500).json({ message: err.message || 'Failed to create Online Assessment' });
+    }
+};
+
 // @desc    Get OA details (hides correctAnswer for non-submitted sections)
 // @route   GET /api/online-assessments/:id
 const getOA = async (req, res) => {
@@ -72,8 +140,11 @@ const getOA = async (req, res) => {
 
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
 
-        // Auth check
-        if (!oa.group.members.map(m => m.toString()).includes(req.user._id.toString())) {
+        if (isSoloScope(oa)) {
+            if (!isCreator(oa, req.user._id)) {
+                return res.status(403).json({ message: 'Not authorized' });
+            }
+        } else if (!oa.group || !oa.group.members.map(m => m.toString()).includes(req.user._id.toString())) {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
@@ -116,6 +187,10 @@ const startOA = async (req, res) => {
         const oa = await OnlineAssessment.findById(req.params.id);
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
 
+        if (isSoloScope(oa) && !isCreator(oa, req.user._id)) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
         const existing = oa.participants.find(
             p => p.user.toString() === req.user._id.toString()
         );
@@ -148,6 +223,10 @@ const submitSection = async (req, res) => {
 
         const oa = await OnlineAssessment.findById(req.params.id);
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
+
+        if (isSoloScope(oa) && !isCreator(oa, req.user._id)) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
 
         const participant = oa.participants.find(
             p => p.user.toString() === req.user._id.toString()
@@ -209,6 +288,10 @@ const endOA = async (req, res) => {
         const oa = await OnlineAssessment.findById(req.params.id);
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
 
+        if (isSoloScope(oa) && !isCreator(oa, req.user._id)) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
         const participant = oa.participants.find(
             p => p.user.toString() === req.user._id.toString()
         );
@@ -241,7 +324,11 @@ const getOAResults = async (req, res) => {
 
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
 
-        if (!oa.group.members.map(m => m.toString()).includes(req.user._id.toString())) {
+        if (isSoloScope(oa)) {
+            if (!isCreator(oa, req.user._id)) {
+                return res.status(403).json({ message: 'Not authorized' });
+            }
+        } else if (!oa.group || !oa.group.members.map(m => m.toString()).includes(req.user._id.toString())) {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
@@ -291,20 +378,25 @@ const deleteOA = async (req, res) => {
         const oa = await OnlineAssessment.findById(req.params.id);
         if (!oa) return res.status(404).json({ message: 'Assessment not found' });
 
-        const group = await Group.findById(oa.group);
-        const isOACreator = oa.creator.toString() === req.user._id.toString();
-        const isGroupCreator = group && group.creator.toString() === req.user._id.toString();
+        if (isSoloScope(oa)) {
+            if (!isCreator(oa, req.user._id)) {
+                return res.status(403).json({ message: 'Not authorized to delete this assessment' });
+            }
+        } else {
+            const group = await Group.findById(oa.group);
+            const isOACreator = oa.creator.toString() === req.user._id.toString();
+            const isGroupCreator = group && group.creator.toString() === req.user._id.toString();
 
-        if (!isOACreator && !isGroupCreator) {
-            return res.status(403).json({ message: 'Not authorized to delete this assessment' });
+            if (!isOACreator && !isGroupCreator) {
+                return res.status(403).json({ message: 'Not authorized to delete this assessment' });
+            }
+
+            await Group.findByIdAndUpdate(oa.group, {
+                $pull: { onlineAssessments: oa._id }
+            });
         }
 
         await OnlineAssessment.findByIdAndDelete(req.params.id);
-
-        // Remove ref from Group
-        await Group.findByIdAndUpdate(oa.group, {
-            $pull: { onlineAssessments: oa._id }
-        });
 
         res.json({ message: 'Assessment deleted successfully' });
     } catch (err) {
@@ -315,6 +407,8 @@ const deleteOA = async (req, res) => {
 
 module.exports = {
     createOA,
+    createSoloOA,
+    getSoloOAs,
     getOA,
     startOA,
     submitSection,

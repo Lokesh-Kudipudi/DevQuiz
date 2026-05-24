@@ -36,6 +36,8 @@ const CodingRoundResults = () => {
 
     if (error) return <Layout>{error}</Layout>;
     if (!round) return <Layout>Round not found</Layout>;
+    const isSolo = round.scope === 'solo' || !round.group;
+    const backTo = isSolo ? '/dashboard' : `/groups/${round.group?._id || round.group}`;
 
     // Deduplicate participants (keep highest score)
     const uniqueParticipants = Object.values(
@@ -53,11 +55,11 @@ const CodingRoundResults = () => {
     return (
         <Layout>
           <div className="max-w-[1200px] mx-auto px-8 py-10">
-            <Link to={`/groups/${round.group._id || round.group}`} className="text-[var(--color-muted)] hover:text-[var(--color-accent)] mb-6 inline-flex items-center gap-2 font-mono text-sm transition-colors">
+            <Link to={backTo} className="text-[var(--color-muted)] hover:text-[var(--color-accent)] mb-6 inline-flex items-center gap-2 font-mono text-sm transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Back to Group
+                {isSolo ? 'Back to Dashboard' : 'Back to Group'}
             </Link>
 
             <div className="max-w-4xl mx-auto">

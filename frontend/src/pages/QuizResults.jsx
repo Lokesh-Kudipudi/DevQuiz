@@ -15,6 +15,7 @@ const QuizResults = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('leaderboard');
+    const backTarget = quiz?.scope === 'solo' || !quiz?.group ? '/dashboard' : `/groups/${quiz.group?._id || quiz.group}`;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,8 +58,8 @@ const QuizResults = () => {
         <Layout>
             <div className="max-w-[900px] mx-auto px-8 py-12 animate-[fadeUp_0.3s_ease_forwards]">
                 {/* Back */}
-                <Link to="/dashboard" className={BACK_LINK_STYLES}>
-                    ← Back to Dashboard
+                <Link to={backTarget} className={BACK_LINK_STYLES}>
+                    ← Back {backTarget === '/dashboard' ? 'to Dashboard' : 'to Group'}
                 </Link>
 
                 {/* Header */}

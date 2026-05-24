@@ -6,8 +6,10 @@ const quizSchema = new mongoose.Schema({
         required: true
     },
     topic: {
-        type: String,
-        required: true
+        type: String
+    },
+    topics: {
+        type: String
     },
     difficulty: {
         type: String,
@@ -21,8 +23,12 @@ const quizSchema = new mongoose.Schema({
     },
     group: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group',
-        required: true
+        ref: 'Group'
+    },
+    scope: {
+        type: String,
+        enum: ['group', 'solo'],
+        default: 'group'
     },
     questions: [{
         question: String,

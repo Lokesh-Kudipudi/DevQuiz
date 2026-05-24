@@ -1,24 +1,54 @@
 # DevQuiz
 
-DevQuiz is a platform for developers to test knowledge, host group challenges, and run AI-generated quizzes and coding rounds.
+DevQuiz is a full-stack developer assessment platform with **group competition** and **solo practice** modes. It supports AI-generated quizzes, coding rounds, and online assessments with real-time updates and streak tracking.
+
+## Highlights
+
+- Dual mode experience:
+  - Group mode for collaborative challenges and leaderboards
+  - Solo mode with a dedicated Personal Dashboard
+- AI content generation using Gemini for:
+  - Quizzes
+  - Coding question sets
+  - Multi-section online assessments
+- Real-time round lifecycle with Socket.io (lobby/live/results)
+- Attempt tracking and performance views (Start/Results, per-item actions)
+- UTC-based practice streak heatmap across solo quiz/OA/coding activity
 
 ## Tech Stack
 
-- **Frontend**: React 19, Vite, Tailwind CSS, React Router, Socket.io client, Monaco Editor
-- **Backend**: Node.js, Express, Socket.io, Passport (Google OAuth), JWT
-- **Database**: MongoDB (Mongoose)
-- **AI**: Gemini API
-- **Code Execution**: Piston (via Docker)
-- **Tooling**: ESLint, Nodemon
+- Frontend: React 19, Vite, Tailwind CSS, React Router, Socket.io client
+- Backend: Node.js, Express, Socket.io, Passport (Google OAuth), JWT + HTTP-only cookies
+- Database: MongoDB + Mongoose
+- AI: Gemini API
+- Tooling: ESLint, Nodemon
 
-## Core Features
+## Current Scope
 
-- Google OAuth and email/password authentication
-- Create and join groups with invite codes
-- AI-generated quizzes, coding rounds, and online assessments
-- Real-time rounds, lobbies, and leaderboards with Socket.io
-- Code execution sandbox for coding challenges
-- Optional local problem catalog override
+- Authentication
+  - Google OAuth
+  - Email/password auth
+  - Demo login
+- Groups
+  - Create/join groups via invite code
+  - Group details with content management
+- Quizzes
+  - Generate via AI
+  - Attempt + scoring + results views
+  - Solo + group access control
+- Online Assessments
+  - Multi-section timed assessments
+  - Start/submit-section/end flows
+  - Results + leaderboard
+  - Solo + group access control
+- Coding Rounds
+  - Group and solo round creation
+  - External round lifecycle (lobby/live/results)
+  - Optional question generation and catalog-topic filtering
+- Personal Dashboard
+  - Solo quick-create actions
+  - Start/Results/Delete actions for solo items
+  - Practice streak heatmap
 
 ## Screenshots
 
@@ -27,12 +57,14 @@ DevQuiz is a platform for developers to test knowledge, host group challenges, a
 ![Quiz](screenshots/3-quiz.png)
 ![Quiz Leaderboard](screenshots/4-quiz-leaderboard.png)
 ![Quiz Results](screenshots/5-quiz-results.png)
+![Personal Dashboard](screenshots/6-personal-dashboard.png)
 
-## Challenges Faced and Solution
+## Repository Metrics
 
-- **Cross-origin auth cookies**: enforced a CORS allowlist using `CLIENT_URL` and environment-aware cookie settings.
-- **AI response reliability**: tightened prompts and cleaned JSON responses before parsing.
-- **Problem catalog flexibility**: added an env-based override with fallback paths and caching.
+- 46 API route handlers across auth/group/solo/quiz/OA/coding/leaderboard
+- 15 frontend pages
+- 6 Mongoose models
+- 6 backend controllers
 
 ## Quick Setup
 
@@ -47,15 +79,11 @@ DevQuiz is a platform for developers to test knowledge, host group challenges, a
    cd frontend
    npm install
    ```
-4. Configure env files:
-   - Copy `backend/.env.example` to `backend/.env` and fill in `MONGO_URI`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GEMINI_API_KEY`, `CLIENT_URL`.
-   - Copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_URL` (default `http://localhost:5174`).
-5. Optional: start the Piston container for code execution:
-   ```bash
-   docker compose up -d
-   ```
-6. Run the app:
-   - Backend: `npm run dev` (in `backend`)
-   - Frontend: `npm run dev` (in `frontend`)
+4. Configure environment files:
+   - Copy `backend/.env.example` -> `backend/.env`
+   - Copy `frontend/.env.example` -> `frontend/.env`
+5. Start services:
+   - Backend: `npm run dev` (inside `backend`)
+   - Frontend: `npm run dev` (inside `frontend`)
 
 Default ports: frontend `5173`, backend `5174`.

@@ -1,4 +1,4 @@
-const StatsCard = ({ groups }) => {
+const StatsCard = ({ groups, soloStats = { quizzes: 0, assessments: 0, rounds: 0 } }) => {
     const totalPoints = groups.reduce((sum, g) => sum + (g.totalPoints || 0), 0);
 
     return (
@@ -51,6 +51,15 @@ const StatsCard = ({ groups }) => {
                     </div>
                 </>
             )}
+
+            <div className="border-t border-[var(--color-text-base)]/[0.07] mt-5 pt-4">
+                <p className="text-[10px] uppercase tracking-[1.5px] text-[var(--color-muted)] font-mono mb-2">Solo Activity</p>
+                <div className="text-xs text-[var(--color-muted)] font-mono space-y-1">
+                    <p>Quizzes: {soloStats.quizzes}</p>
+                    <p>Assessments: {soloStats.assessments}</p>
+                    <p>Coding Rounds: {soloStats.rounds}</p>
+                </div>
+            </div>
         </div>
     );
 };

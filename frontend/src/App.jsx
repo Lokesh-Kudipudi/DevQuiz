@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import PersonalDashboard from './pages/PersonalDashboard';
 import GroupDetails from './pages/GroupDetails';
 import CreateQuiz from './pages/CreateQuiz';
 import CreateCodingRound from './pages/CreateCodingRound';
@@ -39,9 +40,12 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route element={<PrivateRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/personal-dashboard" element={<PersonalDashboard />} />
               <Route path="/groups/:id" element={<GroupDetails />} />
               <Route path="/groups/:groupId/create-quiz" element={<CreateQuiz />} />
+              <Route path="/solo/create-quiz" element={<CreateQuiz />} />
               <Route path="/groups/:groupId/create-coding-round" element={<CreateCodingRound />} />
+              <Route path="/solo/create-coding-round" element={<CreateCodingRound />} />
               <Route path="/coding-round/:id" element={<TakeCodingRound />} />
               <Route path="/coding-round/:id/lobby" element={<CodingRoundLobby />} />
               <Route path="/coding-round/:id/live" element={<LiveCodingRound />} />
@@ -49,6 +53,7 @@ function App() {
               <Route path="/quiz/:id" element={<TakeQuiz />} />
               <Route path="/quiz/:id/results" element={<QuizResults />} />
               <Route path="/groups/:groupId/create-oa" element={<CreateOA />} />
+              <Route path="/solo/create-oa" element={<CreateOA />} />
               <Route path="/oa/:id" element={<TakeOA />} />
               <Route path="/oa/:id/results" element={<OAResults />} />
             </Route>

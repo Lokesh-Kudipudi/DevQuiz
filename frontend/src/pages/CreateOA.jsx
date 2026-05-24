@@ -18,6 +18,7 @@ const defaultSection = () => ({
 const CreateOA = () => {
     const { groupId } = useParams();
     const navigate = useNavigate();
+    const isSoloMode = !groupId;
     const [title, setTitle] = useState('');
     const [sections, setSections] = useState([defaultSection()]);
     const [loading, setLoading] = useState(false);
@@ -40,18 +41,21 @@ const CreateOA = () => {
         setLoading(true);
         const toastId = toast.loading(`Generating questions for ${sections.length} section${sections.length > 1 ? 's' : ''} with AI…`);
         try {
-            await axios.post('/api/online-assessments/generate-and-create', {
+            const payload = {
                 title,
-                groupId,
                 sections: sections.map(s => ({
                     ...s,
                     questionCount: Number(s.questionCount),
                     timeLimit: Number(s.timeLimit)
                 }))
-            });
+            };
+            await axios.post(
+                isSoloMode ? '/api/solo/online-assessments/generate-and-create' : '/api/online-assessments/generate-and-create',
+                isSoloMode ? payload : { ...payload, groupId }
+            );
             toast.success('Assessment created!', { id: toastId });
             window.dispatchEvent(new Event('group-content-updated'));
-            navigate(`/groups/${groupId}`);
+            navigate(isSoloMode ? '/dashboard' : `/groups/${groupId}`);
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to create assessment', { id: toastId });
         } finally {
@@ -61,7 +65,7 @@ const CreateOA = () => {
 
     return (
         <Layout>
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto py-10">
                 <div className="mb-8 text-center">
                     <div className="w-16 h-16 bg-violet-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-violet-500/30">
                         <svg className="w-8 h-8 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,7 +73,9 @@ const CreateOA = () => {
                         </svg>
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">Create Online Assessment</h1>
-                    <p className="text-gray-400">AI will generate MCQ questions for each section you define.</p>
+                    <p className="text-gray-400">
+                        {isSoloMode ? 'Build a personal timed assessment with AI-generated sections.' : 'AI will generate MCQ questions for each section you define.'}
+                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">

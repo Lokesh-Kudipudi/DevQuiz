@@ -83,12 +83,14 @@ const OAResults = () => {
     0,
   );
   const isTerminated = myParticipant?.status === "terminated";
+  const isSolo = data.scope === "solo" || !data.group;
+  const backTo = isSolo ? "/dashboard" : `/groups/${data.group?._id || data.group}`;
 
   return (
     <Layout>
       <div className="max-w-[1200px] mx-auto px-8 py-10">
         <Link
-          to={`/groups/${data.group?._id || "#"}`}
+          to={backTo}
           className="text-[var(--color-muted)] hover:text-[var(--color-accent)] mb-6 inline-flex items-center gap-2 font-mono text-sm transition-colors"
         >
           <svg
@@ -104,7 +106,7 @@ const OAResults = () => {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          Back to Group
+          {isSolo ? "Back to Dashboard" : "Back to Group"}
         </Link>
 
         {/* Title */}

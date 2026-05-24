@@ -629,7 +629,7 @@ const TakeOA = () => {
           {section.questions.map((q, qIdx) => (
             <Card
               key={qIdx}
-              className={`transition-all ${answers[qIdx] ? "border-violet-500/30" : "border-gray-700/50"}`}
+              className={`my-6 transition-all ${answers[qIdx] ? "border-violet-500/30" : "border-gray-700/50"}`}
             >
               <div className="flex gap-3 mb-4">
                 <span className="w-8 h-8 rounded-lg bg-violet-900/40 border border-violet-500/30 flex items-center justify-center text-sm font-bold text-violet-300 flex-shrink-0 mt-0.5">

@@ -62,6 +62,63 @@ const generateQuizQuestions = async (topic, difficulty, count, apiKey) => {
         console.error("Gemini API Error:", error);
         throw new Error("Failed to generate quiz");
     }
+}; 
+
+const generateQuizQuestionsFromTopics = async (topics, difficulty, count, apiKey) => {
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey || process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                temperature: 1.0,
+                topP: 0.95,
+                topK: 40,
+            }
+        });
+
+        const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+        const prompt = `You are generating MCQ questions for a quiz.
+
+Topics to cover: "${topics}"
+Difficulty level: "${difficulty}"
+Number of questions: ${count}
+Random seed (for variety): "${randomSeed}"
+
+Instructions:
+- Generate exactly ${count} multiple choice questions at "${difficulty}" difficulty covering the listed topics proportionally.
+- Each question must have exactly 4 answer options.
+- One option must be the correct answer.
+- Questions should be clear, unambiguous, and test conceptual understanding.
+- For code-related topics, include code snippets where appropriate.
+- Ensure variety — do not repeat similar questions.
+
+Return ONLY a raw JSON array (no markdown, no explanation). Each element MUST have:
+{
+  "questionText": "The question text WITHOUT the code snippet",
+  "codeSnippet": "Raw code only (no backticks). Omit this field entirely if no code",
+  "codeLanguage": "The language (e.g. python, java, cpp, sql). Omit if no code",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "Option A"
+}`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonData = JSON.parse(cleanedText);
+
+        return jsonData.map(item => ({
+            question: item.codeSnippet 
+                ? `${item.questionText}\n\n\`\`\`${item.codeLanguage || ''}\n${item.codeSnippet}\n\`\`\``
+                : item.questionText,
+            options: item.options,
+            correctAnswer: item.correctAnswer
+        }));
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        throw new Error("Failed to generate quiz");
+    }
 };
 
 const generateCodingQuestions = async (topic, difficulty, count, apiKey) => {
@@ -201,4 +258,4 @@ Return ONLY a raw JSON array (no markdown, no explanation). Each element MUST ha
     }
 };
 
-module.exports = { generateQuizQuestions, generateCodingQuestions, generateOASectionQuestions };
+module.exports = { generateQuizQuestions, generateQuizQuestionsFromTopics, generateCodingQuestions, generateOASectionQuestions };

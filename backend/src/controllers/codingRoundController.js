@@ -9,6 +9,9 @@ const {
   generateCodingQuestions,
 } = require("../services/geminiService");
 
+const isCreator = (doc, userId) => doc.creator.toString() === userId.toString();
+const isSoloScope = (doc) => doc.scope === "solo" || !doc.group;
+
 const DIFFICULTY_POINTS = {
   Easy: 2,
   Medium: 3,
@@ -148,6 +151,9 @@ const createCodingRound = async (req, res) => {
     } = req.body;
 
     // Verify group membership
+    if (!groupId) {
+      return res.status(400).json({ message: "groupId is required for group rounds" });
+    }
     const group = await Group.findById(groupId);
     if (!group) {
       return res
@@ -183,6 +189,7 @@ const createCodingRound = async (req, res) => {
       title,
       group: groupId,
       creator: req.user._id,
+      scope: "group",
       timeLimit,
       questions: finalQuestions,
       type: roundType,
@@ -196,6 +203,77 @@ const createCodingRound = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to create coding round" });
+  }
+};
+
+// @desc    Create a new solo coding round
+// @route   POST /api/solo/coding-rounds
+const createSoloCodingRound = async (req, res) => {
+  try {
+    const {
+      title,
+      timeLimit,
+      questions,
+      type,
+      allowSelfAttempt,
+      difficulties,
+      topics,
+    } = req.body;
+
+    let finalQuestions = questions || [];
+    let externalQuestionConfig;
+    const roundType = type || "Piston";
+
+    if (roundType === "External") {
+      const normalizedDifficulties =
+        normalizeStringArray(difficulties);
+
+      externalQuestionConfig = {
+        difficulties:
+          normalizedDifficulties.length > 0
+            ? normalizedDifficulties
+            : DEFAULT_EXTERNAL_DIFFICULTIES,
+        topics: normalizeStringArray(topics),
+      };
+      finalQuestions = [];
+    }
+
+    const codingRound = await CodingRound.create({
+      title,
+      creator: req.user._id,
+      scope: "solo",
+      timeLimit,
+      questions: finalQuestions,
+      type: roundType,
+      allowSelfAttempt: allowSelfAttempt || false,
+      externalQuestionConfig,
+    });
+
+    res.status(201).json(codingRound);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Failed to create coding round" });
+  }
+};
+
+// @desc    Get solo coding rounds for current user
+// @route   GET /api/solo/coding-rounds
+const getSoloCodingRounds = async (req, res) => {
+  try {
+    const rounds = await CodingRound.find({
+      creator: req.user._id,
+      scope: "solo",
+    })
+      .sort({ createdAt: -1 })
+      .populate("creator", "name")
+      .lean();
+
+    res.json(rounds);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -216,7 +294,13 @@ const getCodingRound = async (req, res) => {
     }
 
     // Check auth
-    if (!round.group.members.includes(req.user._id)) {
+    if (isSoloScope(round)) {
+      if (!isCreator(round, req.user._id)) {
+        return res.status(403).json({
+          message: "Not authorized to access this round",
+        });
+      }
+    } else if (!round.group || !round.group.members.includes(req.user._id)) {
       return res.status(403).json({
         message: "Not authorized to access this round",
       });
@@ -285,22 +369,30 @@ const addQuestionToRound = async (req, res) => {
       });
     }
 
-    const group = await Group.findById(round.group);
-    if (!group) {
-      return res
-        .status(404)
-        .json({ message: "Group not found" });
-    }
+    if (isSoloScope(round)) {
+      if (!isCreator(round, req.user._id)) {
+        return res.status(403).json({
+          message: "Not authorized to add questions in this round",
+        });
+      }
+    } else {
+      const group = await Group.findById(round.group);
+      if (!group) {
+        return res
+          .status(404)
+          .json({ message: "Group not found" });
+      }
 
-    const isGroupMember = group.members.some(
-      (memberId) =>
-        memberId.toString() === req.user._id.toString(),
-    );
+      const isGroupMember = group.members.some(
+        (memberId) =>
+          memberId.toString() === req.user._id.toString(),
+      );
 
-    if (!isGroupMember) {
-      return res.status(403).json({
-        message: "Not authorized to add questions in this round",
-      });
+      if (!isGroupMember) {
+        return res.status(403).json({
+          message: "Not authorized to add questions in this round",
+        });
+      }
     }
 
     // Check if round is pending
@@ -443,6 +535,12 @@ const joinCodingRound = async (req, res) => {
       return res
         .status(404)
         .json({ message: "Round not found" });
+
+    if (isSoloScope(round) && !isCreator(round, req.user._id)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to join this round" });
+    }
 
     // Prepare new participant object
     const newParticipant = {
@@ -688,6 +786,7 @@ const submitExternalQuestion = async (req, res) => {
 
       questionStatus.timeTaken = totalDuration;
       questionStatus.lastStartTime = null; // Clear active session
+      questionStatus.submittedAt = new Date();
 
       // Update score
       participant.score += question.points || 0;
@@ -764,6 +863,7 @@ const submitSolution = async (req, res) => {
 
       if (passed && questionStatus.status !== "Passed") {
         questionStatus.status = "Passed";
+        questionStatus.submittedAt = new Date();
         participant.score += 10; // +10 points for solving Piston
       } else if (!passed) {
         questionStatus.status = "Failed";
@@ -808,17 +908,25 @@ const deleteCodingRound = async (req, res) => {
         .json({ message: "Coding round not found" });
     }
 
-    const group = await Group.findById(round.group);
+    if (isSoloScope(round)) {
+      if (!isCreator(round, req.user._id)) {
+        return res.status(403).json({
+          message: "Not authorized to delete this round",
+        });
+      }
+    } else {
+      const group = await Group.findById(round.group);
 
-    // Authorization: Creator of round OR Creator of group
-    if (
-      round.creator.toString() !== req.user._id.toString() &&
-      group &&
-      group.creator.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({
-        message: "Not authorized to delete this round",
-      });
+      // Authorization: Creator of round OR Creator of group
+      if (
+        round.creator.toString() !== req.user._id.toString() &&
+        group &&
+        group.creator.toString() !== req.user._id.toString()
+      ) {
+        return res.status(403).json({
+          message: "Not authorized to delete this round",
+        });
+      }
     }
 
     await CodingRound.findByIdAndDelete(req.params.id);
@@ -902,6 +1010,8 @@ const endCodingRound = async (req, res) => {
 
 module.exports = {
   createCodingRound,
+  createSoloCodingRound,
+  getSoloCodingRounds,
   getProblemTopics,
   getCodingRound,
   joinCodingRound,

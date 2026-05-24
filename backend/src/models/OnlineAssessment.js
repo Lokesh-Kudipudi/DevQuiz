@@ -42,8 +42,12 @@ const onlineAssessmentSchema = new mongoose.Schema({
     title: { type: String, required: true },
     group: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group',
-        required: true
+        ref: 'Group'
+    },
+    scope: {
+        type: String,
+        enum: ['group', 'solo'],
+        default: 'group'
     },
     creator: {
         type: mongoose.Schema.Types.ObjectId,

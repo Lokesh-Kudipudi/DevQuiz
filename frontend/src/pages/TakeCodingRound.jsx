@@ -130,6 +130,10 @@ const TakeCodingRound = () => {
     );
 
   if (!round) return <Layout>Round not found</Layout>;
+  const isSolo = round.scope === "solo" || !round.group;
+  const backTo = isSolo
+    ? "/dashboard"
+    : `/groups/${round.group?._id || round.group}`;
 
   const currentQuestion = round.questions[currentQuestionIndex];
 
@@ -139,7 +143,7 @@ const TakeCodingRound = () => {
       <header className="h-16 border-b border-gray-800 bg-gray-900 px-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link
-            to={`/groups/${round.group._id || round.group}`}
+            to={backTo}
             className="text-gray-400 hover:text-white"
           >
             <svg
@@ -171,9 +175,7 @@ const TakeCodingRound = () => {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() =>
-              navigate(`/groups/${round.group._id || round.group}`)
-            }
+            onClick={() => navigate(backTo)}
           >
             Quit Round
           </Button>

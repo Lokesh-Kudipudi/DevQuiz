@@ -9,7 +9,11 @@ const codingRoundSchema = new mongoose.Schema(
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group",
-      required: true,
+    },
+    scope: {
+      type: String,
+      enum: ["group", "solo"],
+      default: "group",
     },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
@@ -103,6 +107,7 @@ const codingRoundSchema = new mongoose.Schema(
             timeTaken: Number, // in seconds - Final calculated time
             accumulatedTime: { type: Number, default: 0 }, // Time spent in previous sessions (seconds)
             lastStartTime: Date, // Start time of current active session
+            submittedAt: Date,
           },
         ],
       },

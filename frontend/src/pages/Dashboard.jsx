@@ -44,6 +44,9 @@ const Dashboard = () => {
                         </p>
                     </div>
                     <div className="flex gap-2.5">
+                        <Button variant="outline" onClick={() => navigate('/personal-dashboard')} size="md">
+                            Personal Dashboard
+                        </Button>
                         <Button variant="outline" onClick={() => setIsJoinOpen(true)} size="md">
                             Join Group
                         </Button>

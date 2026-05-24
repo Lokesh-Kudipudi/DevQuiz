@@ -10,23 +10,31 @@ import Input from '../components/ui/Input';
 const CreateQuiz = () => {
     const { groupId } = useParams();
     const navigate = useNavigate();
+    const isSoloMode = !groupId;
     
-    const [topic, setTopic] = useState('');
+    const [title, setTitle] = useState('');
+    const [topics, setTopics] = useState('');
     const [difficulty, setDifficulty] = useState('Medium');
     const [count, setCount] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         setError('');
 
-        const promise = axios.post('/api/quizzes/generate', {
-            topic,
+        const payload = {
+            title,
+            topics,
             difficulty,
-            count,
-            groupId
-        }).then(response => {
+            count
+        };
+
+        const promise = axios.post(
+            isSoloMode ? '/api/solo/quizzes/generate' : '/api/quizzes/generate',
+            isSoloMode ? payload : { ...payload, groupId }
+        ).then(response => {
             window.dispatchEvent(new Event('group-content-updated'));
             return response;
         });
@@ -40,12 +48,19 @@ const CreateQuiz = () => {
             }
         );
 
-        navigate(`/groups/${groupId}`);
+        try {
+            await promise;
+            navigate(isSoloMode ? '/dashboard' : `/groups/${groupId}`);
+        } catch (_) {
+            // toast.promise already handles error surface
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <Layout>
-            <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+            <div className="flex items-center justify-center min-h-[calc(100vh-200px)] py-10">
                 <Card className="w-full max-w-md border-primary-500/20 shadow-2xl shadow-primary-500/10">
                     <div className="text-center mb-8">
                         <div className="w-16 h-16 bg-primary-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary-500/30">
@@ -54,7 +69,9 @@ const CreateQuiz = () => {
                             </svg>
                         </div>
                         <h2 className="text-3xl font-bold text-white mb-2">Generate Quiz</h2>
-                        <p className="text-gray-400">Create a new challenge for your group</p>
+                        <p className="text-gray-400">
+                            {isSoloMode ? 'Create a personal practice quiz' : 'Create a new challenge for your group'}
+                        </p>
                     </div>
 
                     {error && (
@@ -68,12 +85,24 @@ const CreateQuiz = () => {
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Input
-                            label="Topic"
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                            placeholder="e.g. React Hooks, Python Basics"
+                            label="Quiz Title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="e.g. Frontend Fundamentals Sprint"
                             required
                         />
+
+                        <div>
+                            <label className="block text-gray-300 mb-2 font-medium">Topics to Cover</label>
+                            <textarea
+                                className="w-full p-3 rounded-xl bg-gray-900/50 text-white border border-gray-700/50 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all resize-none"
+                                rows={3}
+                                value={topics}
+                                onChange={(e) => setTopics(e.target.value)}
+                                placeholder="e.g. React state, hooks, lifecycle, JSX, performance"
+                                required
+                            />
+                        </div>
 
                         <div>
                             <label className="block text-gray-300 mb-2 font-medium">Difficulty</label>

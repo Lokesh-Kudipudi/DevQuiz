@@ -274,6 +274,10 @@ const LiveCodingRound = () => {
     );
 
   if (!round) return <Layout>Round not found</Layout>;
+  const isSoloScope = round.scope === "solo" || !round.group;
+  const exitPath = isSoloScope
+    ? "/dashboard"
+    : `/groups/${round.group?._id || round.group}`;
 
   return (
     <Layout>
@@ -303,11 +307,7 @@ const LiveCodingRound = () => {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={() =>
-                  navigate(
-                    `/groups/${round.group._id || round.group}`,
-                  )
-                }
+                onClick={() => navigate(exitPath)}
               >
                 Exit Round
               </Button>

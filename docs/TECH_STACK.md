@@ -1,4 +1,4 @@
-# Tech Stack Doc
+# Tech Stack Documentation
 
 ## Frontend
 - React 19
@@ -6,21 +6,29 @@
 - Tailwind CSS
 - React Router
 - Socket.io client
-- Monaco Editor (editor integration used in coding flows)
+- `react-hot-toast`, `react-markdown`, `rehype-highlight`
 
 ## Backend
 - Node.js + Express
 - Socket.io
 - Passport (Google OAuth)
-- JWT auth
+- JWT + cookie-based auth
 - Mongoose
 
-## Database
+## Data Layer
 - MongoDB
 
-## Hosting / Deployment Target
-- Not specified in the repo; intended for local development via `npm run dev` for both frontend and backend.
+## AI & Content
+- Gemini API for quiz/OA/coding content generation
+- Local problem catalog (`problems.json`) for coding-topic workflows
 
-## Constraints
-- No hard constraint files defined beyond environment variables in `.env` files.
-- Uses Gemini API key from `x-gemini-api-key` header or allowlist.
+## Security / Access Patterns
+- HTTP-only auth cookies
+- CORS allowlist
+- Protected middleware + demo-write restrictions
+- Scope-aware authorization for solo vs group content
+
+## Local Development
+- Backend: `npm run dev` on `5174`
+- Frontend: `npm run dev` on `5173`
+- Optional Docker/Piston setup exists in project history/config references
