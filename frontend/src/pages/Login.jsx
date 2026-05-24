@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -237,9 +237,18 @@ const Login = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-[10px] text-[var(--color-muted)] font-mono tracking-widest">
-          © 2026 DevQuiz. All rights reserved.
-        </p>
+        <div className="mt-6 text-center text-[10px] font-mono tracking-widest text-[var(--color-muted)]">
+          <div className="mb-2 flex items-center justify-center gap-4">
+            <Link to="/legal/privacy" className="hover:text-[var(--color-accent)] transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="opacity-50">|</span>
+            <Link to="/legal/terms" className="hover:text-[var(--color-accent)] transition-colors">
+              Terms & Conditions
+            </Link>
+          </div>
+          <p>© 2026 DevQuiz. All rights reserved.</p>
+        </div>
       </div>
     </div>
   );

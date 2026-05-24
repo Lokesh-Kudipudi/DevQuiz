@@ -18,6 +18,8 @@ import CreateOA from './pages/CreateOA';
 import TakeOA from './pages/TakeOA';
 import OAResults from './pages/OAResults';
 import PrivateRoute from './components/PrivateRoute';
+import LegalPrivacyPage from './pages/LegalPrivacyPage';
+import LegalTermsPage from './pages/LegalTermsPage';
 
 function App() {
   return (
@@ -38,6 +40,8 @@ function App() {
           />
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
+            <Route path="/legal/terms" element={<LegalTermsPage />} />
             <Route element={<PrivateRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/personal-dashboard" element={<PersonalDashboard />} />
