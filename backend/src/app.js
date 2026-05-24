@@ -10,6 +10,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use('trust proxy', 1);
 
 // CORS Configuration
 // CORS Configuration
