@@ -5,8 +5,6 @@ const userSchema = new mongoose.Schema(
   {
     googleId: {
       type: String,
-      unique: true,
-      sparse: true, // allows multiple docs without googleId (email/password users)
     },
     email: {
       type: String,
@@ -46,6 +44,16 @@ const userSchema = new mongoose.Schema(
     },
   },
   { timestamps: true },
+);
+
+userSchema.index(
+  { googleId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      googleId: { $type: "string" },
+    },
+  },
 );
 
 // Hash password before saving (only if it was modified)
